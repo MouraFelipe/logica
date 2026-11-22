@@ -253,6 +253,10 @@
   .ach{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
   /* desafio surpresa e itens do mascote */
   .step{position:relative;width:100%;display:flex;justify-content:center}
+  .node.mastery .c{border-radius:22px;background:var(--card);border:3px solid var(--accent);box-shadow:0 6px 0 var(--line2);color:var(--accent)}
+  .node.mastery.won .c{background:var(--accent);color:#fff;box-shadow:0 6px 0 var(--accent-d)}
+  .node.mastery.locked .c{border-color:var(--line2);background:var(--tint);filter:grayscale(1);opacity:.65}
+  .lvlchip{display:inline-block;margin-left:6px;font-size:12px;font-weight:900;padding:2px 8px;border-radius:99px;background:var(--soft);color:var(--accent)}
   .node.chal{position:absolute;top:4px;width:96px;z-index:1}
   .node.chal.side-l{left:6px}.node.chal.side-r{right:6px}
   .node.chal .lb{font-size:12px;max-width:96px}.node.chal .lb small{font-size:11px}
@@ -821,6 +825,8 @@ const QUESTIONS = {};
 Object.values(PHASES).forEach(({p,course})=>p.questions.forEach((q,k)=>QUESTIONS[p.id+":"+k]={...q, qid:p.id+":"+k, from:p, course}));
 const ALL_PHASES = Object.values(PHASES).map(x=>x.p);
 const CHAL_BONUS = 50, TRY_BONUS = 5;          // desafio surpresa: errar no máximo 1 · bônus na 1ª vitória · tentar sempre vale XP
+/* teste de domínio: o jogador só sobe de nível quando mostra que domina o tópico (não só por acertar fases) */
+const MASTERY_PASS = 0.8, MASTERY_PER_PHASE = 2, MASTERY_BONUS = 50;
 const CHAL = CHALLENGES.filter(c=>PHASES[c.after]).map(c=>({...c, b:PHASES[c.after].b, course:PHASES[c.after].course}));
 const CH_BY_ID = {}; CHAL.forEach(c=>{ CH_BY_ID[c.id]=c; c.questions.forEach((q,k)=>QUESTIONS[c.id+":s"+k]={...q, qid:c.id+":s"+k, from:{title:"Desafio surpresa"}, course:c.course}); });
 /* idioma atual: MAIN e MAIN_PHASES são só os blocos dele */
@@ -835,7 +841,7 @@ const myReview = ()=>Object.keys(S.review).filter(id=>QUESTIONS[id] && QUESTIONS
 const KEY = "logica-v1";
 const fresh = ()=>({profile:{mascot:"logi", skin:null, accessories:[]}, phases:{}, xp:0, streak:0, best:0, last:null,
                      days:{}, history:[], review:{}, achieved:{}, stats:{answered:0, correct:0, cleared:0}, challenges:{}, items:[], tipN:0,
-                     course:"rl", langs:["rl"], xpBy:null, tipBy:{}});
+                     course:"rl", langs:["rl"], xpBy:null, tipBy:{}, mastery:{}});
 let S = fresh(), storageOK = true;
 try{ const raw = localStorage.getItem(KEY); if (raw) S = Object.assign(fresh(), JSON.parse(raw)); }catch(e){ storageOK = false; }
 S.stats = Object.assign({answered:0, correct:0, cleared:0}, S.stats);
@@ -851,6 +857,7 @@ if (!S.xpBy || typeof S.xpBy!=="object") S.xpBy = {rl:S.xp||0};
 if (!S.tipBy || typeof S.tipBy!=="object") S.tipBy = {rl:0};
 S.profile.mascot = "logi";
 setCourse(S.course);
+if (!S.mastery || typeof S.mastery!=="object") S.mastery = {};
 function persist(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){ storageOK = false; } }
 
 const dayStr = (d=new Date())=>{ const z=new Date(d.getTime()-d.getTimezoneOffset()*6e4); return z.toISOString().slice(0,10); };
@@ -932,6 +939,12 @@ function confetti(n=60){
 function toast(msg){ const t=document.createElement("div"); t.className="toast"; t.textContent=msg; document.body.appendChild(t); setTimeout(()=>t.remove(),2600); }
 const dialogHTML = lines => `<div class="dlg">${lines.map(([who,t])=>`<div class="dl ${who==="Você"?"me":""}"><div class="av">${esc(who[0])}</div><div class="b"><button class="spk" data-say="${esc(t)}" aria-label="Ouvir">🔊</button><span>${esc(t)}</span></div></div>`).join("")}</div>`;
 
+/* ================== domínio e nível ================== */
+const blockDone = b => b.phases.every(p=>done(p.id));
+const mastered = b => !!(S.mastery[b.id] && S.mastery[b.id].passed);
+const masteredCount = () => Object.values(S.mastery).filter(x=>x && x.passed).length;
+const level = () => 1 + masteredCount();          // nível só sobe com bloco dominado
+
 /* ================== progresso / desbloqueio ================== */
 const chalOpen = c => done(c.after);
 const chalWon = c => !!(S.challenges[c.id] && S.challenges[c.id].won);
@@ -939,11 +952,13 @@ const chalWon = c => !!(S.challenges[c.id] && S.challenges[c.id].won);
 const withItem = id => S.profile.accessories.filter(a=>!PRIZES[a] || PRIZES[a].slot!==PRIZES[id].slot).concat([id]);
 function equip(id){ S.profile.accessories = withItem(id); persist(); }
 function unequip(id){ S.profile.accessories = S.profile.accessories.filter(a=>a!==id); persist(); }
-function goNext(nx){ nx.type==="review" ? startReview() : nx.type==="challenge" ? startChallenge(nx.c.id) : startPhase(nx.p.id); }
+function goNext(nx){ nx.type==="review" ? startReview() : nx.type==="challenge" ? startChallenge(nx.c.id) : nx.type==="mastery" ? startMastery(nx.b.id) : startPhase(nx.p.id); }
 function unlocked(id){ const idx=MAIN_PHASES.findIndex(p=>p.id===id); return idx===0 || done(MAIN_PHASES[idx-1].id); }
 function nextActivity(){
   const p = MAIN_PHASES.find(p=>!done(p.id));
   if (p) return {type:"phase", p};
+  const mb = MAIN.find(b=>blockDone(b) && !mastered(b));
+  if (mb) return {type:"mastery", b:mb};
   if (myReview().length) return {type:"review"};
   const c = CHAL.find(c=>c.course===CUR.id && chalOpen(c) && !chalWon(c));
   if (c) return {type:"challenge", c};
@@ -958,6 +973,7 @@ const ACH = [
   {id:"t1",     e:"🧩", t:"Lógica Proposicional", d:"Conclua o Tópico 1",  ok:()=>TOPIC1.phases.every(p=>done(p.id))},
   {id:"t2",     e:"⚖️", t:"Julgamento",           d:"Conclua o Tópico 2",  ok:()=>TOPIC2.phases.every(p=>done(p.id))},
   {id:"t3",     e:"🔄", t:"Negação",              d:"Conclua o Tópico 3",  ok:()=>TOPIC3.phases.every(p=>done(p.id))},
+  {id:"master", e:"🎓", t:"Domínio",             d:"Passe em um teste de domínio", ok:()=>masteredCount()>=1},
   {id:"ten",    e:"✍️", t:"10 exercícios",       d:"Responda 10 exercícios",       ok:()=>S.stats.answered>=10},
   {id:"st3",    e:"🔥", t:"3 dias seguidos",     d:"Estude 3 dias em sequência",   ok:()=>(S.best||0)>=3},
   {id:"st7",    e:"🏅", t:"Uma semana",          d:"Estude 7 dias em sequência",   ok:()=>(S.best||0)>=7},
@@ -1028,6 +1044,8 @@ function mapScreen(){
     next = `<button class="next" id="next"><span class="ic">${nx.p.emoji}</span><span><small>Próxima · ${esc(b.level)} · fase ${i+1}</small><b>${esc(nx.p.title)}</b><span class="g">🎯 ${esc(nx.p.goal)}</span></span></button>`;
   } else if (nx.type==="review"){
     next = `<button class="next" id="next"><span class="ic">🔁</span><span><small>Próxima atividade</small><b>Revisão</b><span class="g">Reforce ${myReview().length} item(ns) que você errou</span></span></button>`;
+  } else if (nx.type==="mastery"){
+    next = `<button class="next" id="next"><span class="ic">🎓</span><span><small>Próxima atividade · ${esc(nx.b.title)}</small><b>Teste de domínio</b><span class="g">Mostre que você domina o tópico e suba para o nível ${level()+1}</span></span></button>`;
   } else if (nx.type==="challenge"){
     next = `<button class="next" id="next"><span class="ic">🎁</span><span><small>Próxima atividade · ${esc(nx.c.b.title)}</small><b>Desafio surpresa</b><span class="g">Vença e ganhe um item para o seu mascote</span></span></button>`;
   }
@@ -1042,7 +1060,7 @@ function mapScreen(){
         const chs=CHAL.filter(c=>c.course===CUR.id).filter(c=>c.after===(i?b.phases[i-1].id:null) || (last && c.after===p.id)).map(c=>chalNode(c,side)).join("");
         return `<div class="step">${chs}<button class="node ${d?"done":""} ${ul?"":"locked"} ${cur?"cur":""}" data-ph="${p.id}" style="transform:translateX(${offs[i%offs.length]}px)">
           ${cur?`<span class="go">START</span>`:""}<span class="c">${ul?(d?"✓":p.emoji):"🔒"}</span><span class="st">${d?starsTxt(S.phases[p.id].stars):""}</span>
-          <span class="lb">${esc(p.title)}<small>Fase ${i+1} · ${esc(p.pt)}</small></span></button></div>`;}).join("")}</div></div>`;
+          <span class="lb">${esc(p.title)}<small>Fase ${i+1} · ${esc(p.pt)}</small></span></button></div>`;}).join("")}${masteryNode(b)}</div></div>`;
   }).join("");
   const soon = CUR.upcoming.map((u,i)=>`<div class="soon"><span class="e">${u.emoji}</span><div><b>${u.level} · ${esc(u.title)}</b><span>${esc(u.pt)} · em breve</span></div></div>`).join("");
   app.innerHTML = `<div class="screen">${appbar()}
@@ -1061,9 +1079,18 @@ function mapScreen(){
   app.querySelectorAll("[data-ph]").forEach(b=>b.onclick=()=>{ const id=b.dataset.ph;
     if(!unlocked(id)){ b.classList.add("shake"); sfx.no(); setTimeout(()=>b.classList.remove("shake"),400); toast("Conclua a fase anterior para desbloquear"); return; }
     sfx.tap(); startPhase(id); });
+  app.querySelectorAll("[data-ms]").forEach(x=>x.onclick=()=>{ const b=MAIN.find(y=>y.id===x.dataset.ms);
+    if(!blockDone(b)){ x.classList.add("shake"); sfx.no(); setTimeout(()=>x.classList.remove("shake"),400); toast("Conclua todas as fases do tópico para fazer o teste"); return; }
+    sfx.tap(); startMastery(b.id); });
   app.querySelectorAll("[data-ch]").forEach(b=>b.onclick=()=>{ const c=CH_BY_ID[b.dataset.ch];
     if(!chalOpen(c)){ b.classList.add("shake"); sfx.no(); setTimeout(()=>b.classList.remove("shake"),400); toast(`Conclua a fase “${PHASES[c.after].p.title}” para abrir este desafio`); return; }
     sfx.tap(); startChallenge(c.id); });
+}
+function masteryNode(b){
+  const op=blockDone(b), m=S.mastery[b.id], won=mastered(b);
+  return `<div class="step"><button class="node mastery ${won?"won":""} ${op?"":"locked"}" data-ms="${b.id}">
+    <span class="c">${won?"🏅":op?"🎓":"🔒"}</span>
+    <span class="lb">Teste de domínio<small>${won?`Tópico dominado · ${m.best}%`:op?(m&&m.plays?`Melhor: ${m.best}% · precisa de ${Math.round(MASTERY_PASS*100)}%`:`Acerte ${Math.round(MASTERY_PASS*100)}% para dominar o tópico`):"Depois de todas as fases"}</small></span></button></div>`;
 }
 function chalNode(c, side){
   const op=chalOpen(c), won=chalWon(c), pr=PRIZES[c.prize];
@@ -1084,6 +1111,7 @@ function progScreen(){
       <div class="card big"><div class="ring" style="background:conic-gradient(var(--accent) ${pct*3.6}deg, var(--tint) 0)"><i>${pct}%</i></div>
         <div><b style="font-size:20px">Progresso geral</b><span style="text-transform:none;letter-spacing:0;font-size:14px;font-weight:700">${dp} de ${MAIN_PHASES.length} fases · ${db} de ${MAIN.length} tópico(s) concluído(s)</span></div></div>
       <div class="card"><b>⚡ ${S.xp}</b><span>XP total</span></div>
+      <div class="card"><b>🎓 Nível ${level()}</b><span>${masteredCount()} tópico(s) dominado(s)</span></div>
       <div class="card"><b>🔥 ${streakNow()}</b><span>Dias seguidos · recorde ${S.best||0}</span></div>
       <div class="card"><b>🎯 ${accuracy()}%</b><span>Taxa de acertos</span></div>
       <div class="card"><b>✍️ ${S.stats.answered}</b><span>Exercícios feitos</span></div>
@@ -1113,6 +1141,7 @@ function achScreen(){
       <div class="row"><div class="grow">Primeira sessão do dia (sequência)</div><span class="tag">+5 por dia, até +35</span></div>
       <div class="row"><div class="grow">Acertar um item da revisão</div><span class="tag">+8</span></div>
       <div class="row"><div class="grow">Concluir um tópico</div><span class="tag">+100</span></div>
+      <div class="row"><div class="grow">Passar no teste de domínio de um tópico (1ª vez)</div><span class="tag">+${MASTERY_BONUS}</span></div>
       <div class="row"><div class="grow">Vencer um desafio surpresa (1ª vez)</div><span class="tag">+${CHAL_BONUS}</span></div>
       <div class="row"><div class="grow">Tentar de novo uma fase ou desafio (coragem de tentar)</div><span class="tag">+${TRY_BONUS}</span></div>
     </div><p class="empty">Não existe bônus por velocidade: o que conta é entender.</p></div></div>${nav()}`;
@@ -1146,7 +1175,7 @@ function meScreen(){
     </div>
     <div class="stitle">Seus números</div>
     <div class="grid"><div class="card"><b>⚡ ${S.xp}</b><span>XP</span></div><div class="card"><b>🏆 ${ACH.filter(a=>S.achieved[a.id]).length}</b><span>Conquistas</span></div>
-      <div class="card"><b>✔ ${ph}</b><span>Fases concluídas</span></div><div class="card"><b>🎯 ${accuracy()}%</b><span>Acertos</span></div></div>
+      <div class="card"><b>✔ ${ph}</b><span>Fases concluídas</span></div><div class="card"><b>🎓 Nível ${level()}</b><span>Sobe só com tópico dominado</span></div><div class="card"><b>🏅 ${masteredCount()}</b><span>Tópicos dominados</span></div><div class="card"><b>🎯 ${accuracy()}%</b><span>Acertos</span></div></div>
     <div class="stitle">Lógica no celular</div>
     <div class="infobox" id="appbox">${appBox()}</div>
     <div class="stitle">Como usar</div>
@@ -1193,6 +1222,51 @@ function startChallenge(id){ const c=CH_BY_ID[id];
   const mine=missed.find(id=>QUESTIONS[id].from && PHASES[QUESTIONS[id].qid.split(":")[0]] && PHASES[QUESTIONS[id].qid.split(":")[0]].b===c.b) || missed[0];
   if (mine) queue.push({...QUESTIONS[mine], kind:"Revanche · "+(QUESTIONS[mine].kind||"Exercício")});   // algo que a pessoa já errou
   L={mode:"challenge", c, queue, total:queue.length, need:queue.length-1, revenge:!!mine, n:0, mistakes:0, ok:0, xp:0}; chalIntro(); }
+/* teste de domínio: questões do bloco inteiro, misturadas, sem o cartão "Aprenda" antes */
+function startMastery(id){ const b=MAIN.find(x=>x.id===id);
+  const queue=shuffle(b.phases.flatMap(p=>shuffle(p.questions.map((q,k)=>QUESTIONS[p.id+":"+k])).slice(0,MASTERY_PER_PHASE)));
+  L={mode:"mastery", b, queue, total:queue.length, need:Math.ceil(queue.length*MASTERY_PASS), n:0, mistakes:0, ok:0, xp:0};
+  const m=S.mastery[b.id], won=mastered(b);
+  app.innerHTML=`<div class="screen"><div class="end">${mbox("thinking")}
+      <h2>Teste de domínio</h2><div class="sub">${b.emoji} ${esc(b.title)}</div>
+      <div class="done-goal"><small>🎯 Como dominar o tópico</small>${L.total} questões de todas as fases do tópico, misturados e sem o cartão “Aprenda” antes. Acerte ${L.need} de ${L.total} (${Math.round(MASTERY_PASS*100)}%).</div>
+      <div class="done-goal"><small>🎓 Por que existe</small>Você não sobe de nível só por concluir fases: sobe quando mostra que realmente domina o conteúdo.</div>
+      ${won?`<div class="done-goal"><small>🏅 Tópico dominado</small>Melhor resultado: ${m.best}%. Faça de novo para manter o conteúdo fresco.</div>`:m&&m.plays?`<div class="done-goal"><small>📈 Sua melhor tentativa</small>${m.best}%</div>`:""}
+    </div><div class="foot"><button class="btn" id="go" style="margin-bottom:10px">Começar o teste</button><button class="btn ghost" id="map">Agora não</button></div></div>`;
+  sfx.tap();
+  document.getElementById("go").onclick=()=>{ sfx.tap(); nextQ(); };
+  document.getElementById("map").onclick=quit; window.scrollTo(0,0);
+}
+function finishMastery(){
+  const b=L.b, acc=Math.round(L.ok/L.total*100), win=L.ok>=L.need, first=win && !mastered(b), lvBefore=level();
+  const lines=[["Respostas certas",L.xp]];
+  if (first) lines.push(["Tópico dominado",MASTERY_BONUS]);
+  if (!win) lines.push(["Coragem de tentar",TRY_BONUS]);
+  if (touchDay()) lines.push([`Sequência de ${S.streak} dia${S.streak>1?"s":""}`,5*Math.min(S.streak,7)]);
+  const total=lines.reduce((s,l)=>s+l[1],0); addXP(total);
+  const prev=S.mastery[b.id]||{plays:0,best:0};
+  S.mastery[b.id]={passed:prev.passed||(win?dayStr():null), best:Math.max(prev.best||0,acc), plays:(prev.plays||0)+1};
+  S.history.push({d:dayStr(), t:"Teste de domínio: "+b.title, c:L.ok, n:L.total, xp:total, lang:CUR.id}); S.history=S.history.slice(-40);
+  const news=checkAch(); persist();
+  const nx=nextActivity(), l=mascotLine(M(), win?"celebrate":"oops");
+  app.innerHTML=`<div class="screen"><div class="end">${mbox(win?"celebrate":"encourage")}
+      <h2>${win?(first?`Nível ${level()}!`:"Domínio confirmado!"):"Quase lá! 💪"}</h2><div class="sub">Teste de domínio · ${esc(b.title)}</div>
+      <div class="bubble">${esc(l[0])}<small>${esc(l[1])}</small></div>
+      <div class="cards3" style="margin-top:14px"><div class="card"><b>✔ ${L.ok}/${L.total}</b><span>Acertos</span></div><div class="card"><b>🎯 ${acc}%</b><span>Precisa ${Math.round(MASTERY_PASS*100)}%</span></div><div class="card"><b>⚡ ${total}</b><span>XP</span></div></div>
+      ${first?`<div class="newach"><b>🏅 Tópico dominado: ${esc(b.title)}</b>Você subiu do nível ${lvBefore} para o nível ${level()}.</div>`:""}
+      <div class="xpl">${lines.map(x=>`<div><span>${esc(x[0])}</span><b>+${x[1]} XP</b></div>`).join("")}</div>
+      ${news.map(a=>`<div class="newach"><b>${a.e} Conquista: ${esc(a.t)}</b>${esc(a.d)}</div>`).join("")}
+      ${win?"":`<p class="empty" style="margin-top:12px">Para dominar o tópico, acerte ${L.need} de ${L.total}. O que você errou foi para a <b>Revisão</b>: revise e tente de novo.</p>`}
+    </div><div class="foot">
+      ${win?"":`<button class="btn" id="again" style="margin-bottom:10px">Tentar de novo</button>`}
+      ${win && nx.type!=="all"?`<button class="btn" id="nx" style="margin-bottom:10px">Continuar</button>`:""}
+      <button class="btn ghost" id="map">Ver mapa</button></div></div>`;
+  win ? (sfx.win(), confetti(first?130:60)) : sfx.tap();
+  const a=document.getElementById("again"); if(a) a.onclick=()=>startMastery(b.id);
+  const nb=document.getElementById("nx"); if(nb) nb.onclick=()=>goNext(nx);
+  document.getElementById("map").onclick=quit; window.scrollTo(0,0);
+}
+
 function chalIntro(){
   const c=L.c, won=chalWon(c), pr=PRIZES[c.prize], l=mascotLine(M(),"surprise");
   app.innerHTML=`<div class="screen"><div class="end">${mbox("surprised")}
@@ -1244,10 +1318,10 @@ function learnCard(){
 }
 
 function nextQ(){
-  if (!L.queue.length) return L.mode==="review"?finishReview():L.mode==="challenge"?finishChallenge():finishPhase();
+  if (!L.queue.length) return L.mode==="review"?finishReview():L.mode==="challenge"?finishChallenge():L.mode==="mastery"?finishMastery():finishPhase();
   const q=L.cur=L.queue.shift();
   app.innerHTML = `<div class="screen">${topBar()}<div class="q"><div class="qhead">
-      <div class="type">${L.mode==="review"?"Revisão · ":L.mode==="challenge"?"Desafio · ":""}${esc(q.kind||{choice:"Escolha",build:"Monte a frase",match:"Associe"}[q.type])}</div><div class="qm">${mascotSVG(M(),"thinking")}</div></div>
+      <div class="type">${L.mode==="review"?"Revisão · ":L.mode==="challenge"?"Desafio · ":L.mode==="mastery"?"Teste de domínio · ":""}${esc(q.kind||{choice:"Escolha",build:"Monte a frase",match:"Associe"}[q.type])}</div><div class="qm">${mascotSVG(M(),"thinking")}</div></div>
       ${q.situation?`<div class="sit"><span>📍</span><span>${esc(q.situation)}</span></div>`:""}
       ${q.dialog?dialogHTML(q.dialog):""}
       <h3>${esc(q.prompt)}</h3><div id="body"></div></div>
@@ -1366,10 +1440,11 @@ function finishPhase(){
       <div class="bprog"><div class="t">${b.emoji} ${esc(b.title)} · ${nd} de ${b.phases.length} fases</div>
         <div class="steps">${b.phases.map(x=>`<i class="${done(x.id)?"on":""}"></i>`).join("")}</div>
         <div class="n">${nd===b.phases.length?esc(b.doneMsg||"Tópico completo!"):`Falta${b.phases.length-nd>1?"m":""} ${b.phases.length-nd} fase${b.phases.length-nd>1?"s":""} para completar o tópico.`}</div></div>
+      ${blockNow && !mastered(b) ? `<div class="newach"><b>🎓 Teste de domínio liberado!</b>Mostre que você domina o tópico e suba para o nível ${level()+1}.</div>`:""}
       ${news.map(a=>`<div class="newach"><b>${a.e} Conquista: ${esc(a.t)}</b>${esc(a.d)}</div>`).join("")}
       ${L.mistakes?`<p class="empty" style="margin-top:12px">O que você errou foi para a <b>Revisão</b>.${stars<3?" Refaça a fase sem erros para ganhar 3 estrelas.":""}</p>`:""}
     </div><div class="foot">
-      ${nx.type!=="all"?`<button class="btn" id="nx" style="margin-bottom:10px">${nx.type==="phase"?`Próxima: ${esc(nx.p.title)}`:nx.type==="challenge"?"Próxima: Desafio surpresa":"Próxima: Revisão"}</button>`:""}
+      ${nx.type!=="all"?`<button class="btn" id="nx" style="margin-bottom:10px">${nx.type==="phase"?`Próxima: ${esc(nx.p.title)}`:nx.type==="challenge"?"Próxima: Desafio surpresa":nx.type==="mastery"?"Próxima: Teste de domínio":"Próxima: Revisão"}</button>`:""}
       <button class="btn ghost" id="map">Ver mapa</button></div></div>`;
   sfx.win(); confetti(blockNow?130:60);
   const nb=document.getElementById("nx"); if(nb) nb.onclick=()=>goNext(nx);

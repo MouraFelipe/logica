@@ -12,6 +12,7 @@ No site, o Lógica pode ser instalado na tela inicial e abre como app, até sem 
 ## Como funciona
 - **Tópicos e fases:** cada tópico tem de 4 a 5 fases; cada fase tem um objetivo, um resumo com macetes de prova e 3 questões.
 - **Questões:** múltipla escolha, Certo/Errado (estilo Cebraspe) e associar.
+- **Teste de domínio e nível:** ao concluir todas as fases de um tópico, aparece o 🎓 Teste de domínio: 2 questões de cada fase, misturadas e sem o resumo antes. Com 80% de acertos o tópico fica dominado (🏅) e o nível sobe. O nível só sobe com tópico dominado, não com XP. O teste não trava o próximo tópico.
 - **Revisão:** o que você erra vai para a Revisão, para treinar depois.
 - **Sequência de dias (🔥), XP e conquistas.** A cada 5 questões há uma pausa com incentivo ou dica de estudo.
 - **Progresso:** fica salvo no navegador.
@@ -28,3 +29,4 @@ No site, o Lógica pode ser instalado na tela inicial e abre como app, até sem 
 - App: `src/app.html`
 - Gerar o `index.html`: `python3 src/build.py`
 - Teste dos tópicos (joga todas as fases): `python tests/test_topicos.py` (precisa do Playwright)
+- Teste de domínio (reprovar, aprovar e subir de nível): `python tests/test_dominio.py`
