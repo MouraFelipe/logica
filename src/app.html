@@ -591,7 +591,7 @@ function pickScreen(mode){ // mode: "first" | "change"
     const m = sel && MASCOTS[sel];
     const line = sel ? mascotLine(sel,"welcome") : null;
     app.innerHTML = `<div class="screen pick">
-      ${mode==="first"?`<div class="brand"><b>Blurty<span>.</span></b><small>Blurty it out!</small><em>Fale sem medo. Errar faz parte.</em></div>`:""}
+      ${mode==="first"?`<div class="brand"><b>Lógica<span>.</span></b><small>Raciocínio lógico</small><em>Errar aqui é melhor que errar na prova.</em></div>`:""}
       <h1>${mode==="first"?"Escolha seu companheiro":"Trocar mascote"}</h1>
       <p class="sub">${mode==="first"?"Ele vai te acompanhar em toda a jornada. Dá para trocar depois no Perfil.":"Seu XP, fases, conquistas e sequência continuam iguais."}</p>
       <div class="preview">${sel ? `${mbox("welcome", sel)}<div><div class="who">${m.name}</div><div class="per">${m.speciesPt} · ${m.colorPt}<br>${esc(m.personality)}</div>
@@ -736,19 +736,19 @@ function achScreen(){
 }
 
 /* app no celular (site): instalar na tela inicial */
-const SITE_URL = "https://mourafelipe.github.io/blurty/";
+const SITE_URL = "https://mourafelipe.github.io/logica/";
 const ON_SITE = /(^|\.)github\.io$/i.test(location.hostname) || location.hostname==="localhost";
 const IS_APP = (()=>{ try{ return matchMedia("(display-mode: standalone)").matches || navigator.standalone===true; }catch(e){ return false; } })();
 const IS_IOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
 let installEvt = null;
 window.addEventListener("beforeinstallprompt", e=>{ e.preventDefault(); installEvt=e; const b=document.getElementById("appbox"); if(b){ b.innerHTML=appBox(); bindApp(); } });
-if (false && ON_SITE && "serviceWorker" in navigator) { try{ navigator.serviceWorker.register("sw.js").catch(()=>{}); }catch(e){} }
+if (ON_SITE && "serviceWorker" in navigator) { try{ navigator.serviceWorker.register("sw.js").catch(()=>{}); }catch(e){} }
 function appBox(){
-  if (IS_APP) return `<h4>✔ Você está usando o app</h4><p>O Blurty abre direto da tela inicial, como um app.</p>`;
-  if (!ON_SITE) return `<h4>Instale pelo site</h4><p>Abra o Blurty pelo site no celular para colocar o ícone na tela inicial.</p><a class="btn ghost" href="${SITE_URL}" target="_blank" rel="noopener">Abrir o site</a>`;
-  if (installEvt) return `<h4>Coloque o Blurty na tela inicial</h4><p>Ele abre como um app, em tela cheia.</p><button class="btn" id="install">Instalar app</button>`;
-  if (IS_IOS) return `<h4>Coloque o Blurty na tela inicial</h4><p>No Safari, toque em <b>Compartilhar</b> e depois em <b>Adicionar à Tela de Início</b>.</p>`;
-  return `<h4>Coloque o Blurty na tela inicial</h4><p>No Chrome, abra o menu <b>⋮</b> e toque em <b>Instalar app</b> ou <b>Adicionar à tela inicial</b>.</p>`;
+  if (IS_APP) return `<h4>✔ Você está usando o app</h4><p>O Lógica abre direto da tela inicial, como um app.</p>`;
+  if (!ON_SITE) return `<h4>Instale pelo site</h4><p>Abra o Lógica pelo site no celular para colocar o ícone na tela inicial.</p><a class="btn ghost" href="${SITE_URL}" target="_blank" rel="noopener">Abrir o site</a>`;
+  if (installEvt) return `<h4>Coloque o Lógica na tela inicial</h4><p>Ele abre como um app, em tela cheia.</p><button class="btn" id="install">Instalar app</button>`;
+  if (IS_IOS) return `<h4>Coloque o Lógica na tela inicial</h4><p>No Safari, toque em <b>Compartilhar</b> e depois em <b>Adicionar à Tela de Início</b>.</p>`;
+  return `<h4>Coloque o Lógica na tela inicial</h4><p>No Chrome, abra o menu <b>⋮</b> e toque em <b>Instalar app</b> ou <b>Adicionar à tela inicial</b>.</p>`;
 }
 function bindApp(){ const b=document.getElementById("install"); if(b) b.onclick=async()=>{ if(!installEvt) return; installEvt.prompt(); try{ await installEvt.userChoice; }catch(e){} installEvt=null; const x=document.getElementById("appbox"); if(x){ x.innerHTML=appBox(); bindApp(); } }; }
 function meScreen(){
@@ -763,12 +763,14 @@ function meScreen(){
     <div class="stitle">Seus números</div>
     <div class="grid"><div class="card"><b>⚡ ${S.xp}</b><span>XP</span></div><div class="card"><b>🏆 ${ACH.filter(a=>S.achieved[a.id]).length}</b><span>Conquistas</span></div>
       <div class="card"><b>✔ ${ph}</b><span>Fases concluídas</span></div><div class="card"><b>🎯 ${accuracy()}%</b><span>Acertos</span></div></div>
+    <div class="stitle">Lógica no celular</div>
+    <div class="infobox" id="appbox">${appBox()}</div>
     <div class="stitle">Como usar</div>
     <div class="infobox"><h4>Fases curtas, estilo prova</h4>
       <p>Cada fase tem um resumo e 3 questões, algumas no estilo <b>Certo ou Errado</b>. O que você errar vai para a Revisão.</p></div>
     <p class="empty" style="margin-top:14px">Seu progresso fica salvo neste aparelho e neste navegador.</p>
   </div></div>${nav()}`;
-  bindNav();
+  bindNav(); bindApp();
 }
 
 /* ================== escolha de idioma ================== */
