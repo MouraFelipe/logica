@@ -1,0 +1,1457 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#F7F5F0">
+<title>Lógica — Raciocínio lógico para concursos</title>
+<meta name="description" content="Treine raciocínio lógico para concursos com fases curtas e questões no estilo das bancas.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Lógica">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F7F5F0; --card:#FFFFFF; --ink:#26241F; --muted:#6F6A62; --line:#E7E2D8; --line2:#D9D3C7; --tint:#EFECE6;
+    --ok:#2E7A4E; --ok-l:#E4F2E9; --no:#B0473A; --no-l:#F7E4E0;
+    --accent:#4A4740; --accent-d:#2E2C27; --soft:#EEEBE5; --mbody:#BDB7AC;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0}
+  body{background:#ECE8E0;color:var(--ink);font-family:Nunito,system-ui,sans-serif;display:flex;justify-content:center;min-height:100vh}
+  #app{width:100%;max-width:560px;min-height:100vh;background:var(--bg);position:relative;box-shadow:0 0 0 1px var(--line)}
+  button{font-family:inherit;cursor:pointer;border:none;color:inherit;background:none}
+  h1,h2,h3,.logo,.disp{font-family:"Baloo 2",Nunito,sans-serif}
+  .screen{animation:in .28s ease;padding-bottom:110px}
+  @keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+  /* ----- mascote ----- */
+  .msvg{width:100%;height:100%;overflow:visible}
+  .msvg .whole{transform-origin:60px 110px}
+  .mood-idle .whole,.mood-welcome .whole,.mood-encourage .whole{animation:bob 3s ease-in-out infinite}
+  .mood-happy .whole{animation:hop .55s ease 2}
+  .mood-sad .whole,.mood-oops .whole{animation:wobble .7s ease 1}
+  .mood-thinking .whole{animation:tilt 3.2s ease-in-out infinite}
+  .mood-surprised .whole{animation:pop .45s ease 1}
+  .floaty.mood-idle .whole,.floaty.mood-welcome .whole{animation:float 3.4s ease-in-out infinite}
+  .orb{animation:twinkle 2.2s ease-in-out infinite}
+  .dots circle{animation:twinkle 1.4s ease-in-out infinite}
+  .dots circle:nth-child(2){animation-delay:.2s}.dots circle:nth-child(3){animation-delay:.4s}
+  .mood-excited .whole{animation:jump .5s ease 3}
+  .mood-celebrate .whole{animation:party 1s ease 2}
+  .mood-idle .eye,.mood-welcome .eye,.mood-encourage .eye{animation:blink 4.5s infinite;transform-box:fill-box;transform-origin:center}
+  .arm-wave{animation:wave .9s ease-in-out infinite}
+  .spark{animation:twinkle 1s ease-in-out infinite}
+  @keyframes bob{50%{transform:translateY(-4px)}}
+  @keyframes float{50%{transform:translateY(-8px)}}
+  @keyframes tilt{50%{transform:rotate(-4deg)}}
+  @keyframes pop{40%{transform:scale(1.12)}}
+  @keyframes hop{40%{transform:translateY(-14px) scale(1.03,.97)}}
+  @keyframes wobble{20%{transform:rotate(-8deg)}40%{transform:rotate(6deg)}60%{transform:rotate(-4deg)}80%{transform:rotate(2deg)}}
+  @keyframes jump{50%{transform:translateY(-18px)}}
+  @keyframes party{30%{transform:translateY(-16px) rotate(-8deg)}60%{transform:translateY(-16px) rotate(8deg)}}
+  @keyframes blink{0%,94%,100%{transform:scaleY(1)}96%{transform:scaleY(.1)}}
+  @keyframes wave{50%{transform:rotate(-22deg)}}
+  @keyframes twinkle{50%{opacity:.3}}
+  @media (prefers-reduced-motion:reduce){.msvg *{animation:none!important}}
+  .mbox{flex:none}
+  .bubble{background:var(--card);border:2px solid var(--line);border-radius:18px;padding:10px 14px;position:relative;font-weight:800;line-height:1.3}
+  .bubble small{display:block;font-weight:700;color:var(--muted);font-size:13px;margin-top:2px}
+  .bubble.left::before{content:"";position:absolute;left:-9px;top:22px;width:14px;height:14px;background:var(--card);border-left:2px solid var(--line);border-bottom:2px solid var(--line);transform:rotate(45deg)}
+
+  /* ----- topo ----- */
+  .appbar{display:flex;align-items:center;gap:8px;padding:12px 16px;position:sticky;top:0;background:var(--bg);z-index:6;border-bottom:2px solid var(--line)}
+  .logo{font-weight:800;font-size:28px;flex:1;line-height:1}
+  .logo span{color:var(--accent)}
+  .logo small{display:block;font-family:Nunito,sans-serif;font-size:11px;font-weight:900;letter-spacing:.08em;color:var(--accent);margin-top:2px}
+  .brand{text-align:center;margin:0 0 10px}
+  /* comemoração de sequência */
+  .streak-ov{position:fixed;inset:0;z-index:80;overflow-y:auto;background:radial-gradient(ellipse at 50% 30%,#FFE8C7 0%,var(--bg) 62%);animation:in .35s ease}
+  .streak-ov.out{opacity:0;transition:opacity .3s}
+  .streak-ov .sbox{position:relative;z-index:2;max-width:440px;margin:0 auto;padding:26px 20px 30px;text-align:center}
+  .streak-ov h2{font-size:34px;margin:2px 0 0;line-height:1.05}
+  .flame{position:relative;display:inline-block;margin:0 0 14px;animation:flicker 1.3s ease-in-out infinite;transform-origin:50% 90%}
+  .flame .f{font-size:88px;display:block;line-height:1;filter:drop-shadow(0 6px 14px rgba(255,120,30,.45))}
+  .flame .num{position:absolute;left:50%;top:58%;transform:translate(-50%,-50%);font-family:"Baloo 2";font-size:34px;color:#fff;text-shadow:0 2px 0 #B4441A,0 0 8px rgba(0,0,0,.25)}
+  .flame .num.bump{animation:numpop .5s ease}
+  @keyframes numpop{40%{transform:translate(-50%,-50%) scale(1.6)}}
+  @keyframes flicker{0%,100%{transform:scale(1) rotate(-2deg)}50%{transform:scale(1.07,1.12) rotate(2deg)}}
+  .streak-ov .act{width:150px;height:150px;margin:6px auto 0}
+  /* comemoração do 🔥: o mascote se mexe por partes (braços, pés, rabo, antena), sem girar a imagem inteira */
+  .act .msvg .whole{animation:none;transform-origin:80px 150px}
+  .act .p-foot{transform-box:fill-box;transform-origin:50% 100%}
+  .act .shadow{transform-box:fill-box;transform-origin:center}
+  .sp-dino .p-tail{transform-origin:114px 108px} .sp-foxy .p-tail{transform-origin:104px 128px}
+  .sp-miko .p-tail{transform-origin:106px 134px} .sp-roki .p-tail{transform-origin:52px 125px}
+  .sp-lumi .p-ant{transform-origin:80px 32px}
+  /* Dino: marcha pisando forte, um pé de cada vez, socando o ar */
+  .act-stomp .msvg .whole{animation:march .8s ease-in-out infinite}
+  .act-stomp .p-foot{animation:stepup .8s ease-in-out infinite} .act-stomp .p-foot.pf1{animation-delay:-.4s}
+  .act-stomp .arm-l{animation:pumpL .4s ease-in-out infinite alternate} .act-stomp .arm-r{animation:pumpR .4s ease-in-out infinite alternate-reverse}
+  .act-stomp .p-tail{animation:tailwag .8s ease-in-out infinite}
+  .act-stomp .shadow{animation:thud .4s ease-in-out infinite}
+  @keyframes march{0%,50%,100%{transform:translateY(1px) rotate(0)}25%{transform:translateY(-4px) rotate(-3deg)}75%{transform:translateY(-4px) rotate(3deg)}}
+  @keyframes stepup{0%,50%,100%{transform:translateY(0)}22%{transform:translateY(-11px) rotate(-8deg)}}
+  @keyframes pumpL{from{transform:rotate(-22deg)}to{transform:rotate(14deg)}}
+  @keyframes pumpR{from{transform:rotate(22deg)}to{transform:rotate(-14deg)}}
+  @keyframes tailwag{0%,100%{transform:rotate(-7deg)}50%{transform:rotate(9deg)}}
+  @keyframes thud{0%,100%{transform:scaleX(1)}50%{transform:scaleX(.88)}}
+  /* Lumi: flutua brilhando, rege o ar com os bracinhos e balança a antena */
+  .act-glow{animation:glow 1.6s ease-in-out infinite}
+  @keyframes glow{50%{filter:drop-shadow(0 0 18px rgba(255,214,120,.95))}}
+  .act-glow .msvg .whole{animation:float 2s ease-in-out infinite}
+  .act-glow .arm-l{animation:conductL 1s ease-in-out infinite alternate} .act-glow .arm-r{animation:conductR 1s ease-in-out infinite alternate-reverse}
+  .act-glow .p-ant{animation:antenna 1s ease-in-out infinite alternate}
+  .act-glow .shadow{animation:shadowfloat 2s ease-in-out infinite}
+  @keyframes conductL{from{transform:rotate(-40deg)}to{transform:rotate(18deg)}}
+  @keyframes conductR{from{transform:rotate(40deg)}to{transform:rotate(-18deg)}}
+  @keyframes antenna{from{transform:rotate(-14deg)}to{transform:rotate(12deg)}}
+  @keyframes shadowfloat{50%{transform:scale(.8);opacity:.06}}
+  /* Foxy: pulinhos abanando o rabo e acenando */
+  .act-wag .msvg .whole{animation:foxhop .6s ease-in-out infinite}
+  .act-wag .p-tail{animation:wagfast .2s ease-in-out infinite alternate}
+  .act-wag .arm-r{animation:hello .5s ease-in-out infinite alternate} .act-wag .arm-l{animation:pumpL .6s ease-in-out infinite alternate}
+  .act-wag .p-foot{animation:tiptoe .6s ease-in-out infinite}
+  .act-wag .shadow{animation:shadowhop .6s ease-in-out infinite}
+  @keyframes foxhop{0%,100%{transform:translateY(0) scale(1)}15%{transform:scale(1.05,.95)}45%{transform:translateY(-13px) scale(.97,1.04)}75%{transform:translateY(0) scale(1.04,.96)}}
+  @keyframes wagfast{from{transform:rotate(-16deg)}to{transform:rotate(10deg)}}
+  @keyframes hello{from{transform:rotate(-30deg)}to{transform:rotate(16deg)}}
+  @keyframes tiptoe{0%,100%{transform:none}45%{transform:translateY(-2px) rotate(-6deg)}}
+  @keyframes shadowhop{45%{transform:scale(.72);opacity:.07}}
+  /* Miko: agacha, pega impulso e salta de braços pro alto */
+  .act-jump .msvg .whole{animation:leap 1s ease-in-out infinite}
+  .act-jump .arm-l{animation:leapL 1s ease-in-out infinite} .act-jump .arm-r{animation:leapR 1s ease-in-out infinite}
+  .act-jump .p-foot{animation:tuck 1s ease-in-out infinite}
+  .act-jump .p-tail{animation:tailflip 1s ease-in-out infinite}
+  .act-jump .shadow{animation:shadowleap 1s ease-in-out infinite}
+  @keyframes leap{0%,100%{transform:none}22%{transform:scale(1.07,.88)}48%,58%{transform:translateY(-20px) scale(.95,1.07)}80%{transform:scale(1.06,.92)}}
+  @keyframes leapL{0%,100%{transform:rotate(0)}22%{transform:rotate(-60deg)}50%{transform:rotate(14deg)}80%{transform:rotate(-30deg)}}
+  @keyframes leapR{0%,100%{transform:rotate(0)}22%{transform:rotate(60deg)}50%{transform:rotate(-14deg)}80%{transform:rotate(30deg)}}
+  @keyframes tuck{0%,30%,75%,100%{transform:none}50%{transform:translateY(-5px)}}
+  @keyframes tailflip{0%,30%,80%,100%{transform:rotate(0)}52%{transform:rotate(18deg)}}
+  @keyframes shadowleap{0%,100%{transform:none}22%{transform:scaleX(1.1)}50%{transform:scale(.55);opacity:.05}}
+  /* Bloop: sapo pulando na lagoa, esticando as pernas e batendo os bracinhos */
+  .act-boing .msvg .whole{animation:frog .9s ease-in-out infinite}
+  .act-boing .arm-l{animation:flapL .3s ease-in-out infinite alternate} .act-boing .arm-r{animation:flapR .3s ease-in-out infinite alternate}
+  .act-boing .p-foot.pf0{animation:kickL .9s ease-in-out infinite} .act-boing .p-foot.pf1{animation:kickR .9s ease-in-out infinite}
+  .act-boing .shadow{animation:shadowleap .9s ease-in-out infinite}
+  @keyframes frog{0%,100%{transform:none}22%{transform:scale(1.16,.84)}52%{transform:translateY(-18px) scale(.92,1.1)}80%{transform:scale(1.06,.94)}}
+  @keyframes flapL{from{transform:rotate(-34deg)}to{transform:rotate(10deg)}}
+  @keyframes flapR{from{transform:rotate(34deg)}to{transform:rotate(-10deg)}}
+  @keyframes kickL{0%,30%,80%,100%{transform:none}52%{transform:translate(-6px,2px) rotate(-16deg)}}
+  @keyframes kickR{0%,30%,80%,100%{transform:none}52%{transform:translate(6px,2px) rotate(16deg)}}
+  /* Roki: dança remexendo o quadril, braços de discoteca e sapateado */
+  .act-dance .msvg .whole{animation:groove 1s ease-in-out infinite}
+  .act-dance .arm-l{animation:discoL 1s ease-in-out infinite} .act-dance .arm-r{animation:discoR 1s ease-in-out infinite}
+  .act-dance .p-foot.pf0{animation:tap 1s ease-in-out infinite} .act-dance .p-foot.pf1{animation:tap 1s ease-in-out infinite -.5s}
+  .act-dance .p-tail{animation:tailswing 1s ease-in-out infinite}
+  @keyframes groove{0%,100%{transform:translateX(-4px) rotate(-5deg)}25%,75%{transform:translateY(-4px)}50%{transform:translateX(4px) rotate(5deg)}}
+  @keyframes discoL{0%,100%{transform:rotate(0)}50%{transform:rotate(-95deg)}}
+  @keyframes discoR{0%,100%{transform:rotate(95deg)}50%{transform:rotate(0)}}
+  @keyframes tap{0%,40%,100%{transform:none}18%{transform:translateY(-8px) rotate(10deg)}}
+  @keyframes tailswing{0%,100%{transform:rotate(10deg)}50%{transform:rotate(-12deg)}}
+  .acttxt{font-size:13px;font-weight:800;color:var(--accent);margin-top:2px}
+  .streak-ov .bubble{display:inline-block;margin-top:10px}
+  .week{display:flex;justify-content:center;gap:6px;margin:14px 0 6px}
+  .week i{width:38px;height:48px;border-radius:12px;background:var(--card);border:2px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;font-style:normal;font-size:16px}
+  .week i b{font-size:11px;color:var(--muted)}
+  .week i.on{border-color:#F0A04B;background:#FFF1DF}
+  .ins{background:var(--card);border:2px solid var(--line);border-radius:14px;padding:9px 12px;margin-top:8px;text-align:left;font-weight:700;font-size:14px}
+  .streak-ov .btn{margin-top:16px}
+  .embers{position:fixed;inset:0;pointer-events:none;z-index:1;overflow:hidden}
+  .ember{position:absolute;bottom:-20px;width:8px;height:8px;border-radius:50%;background:radial-gradient(circle,#FFD27A,#FF7A2F);opacity:0;animation:rise linear infinite}
+  .ember.big{width:auto;height:auto;background:none;font-size:20px}
+  @keyframes rise{0%{transform:translateY(0) scale(1);opacity:0}10%{opacity:.95}100%{transform:translateY(-105vh) translateX(30px) scale(.4);opacity:0}}
+  .infobox{background:var(--card);border:2px solid var(--line);border-radius:16px;padding:14px;text-align:left}
+  .infobox h4{margin:0 0 4px;font-family:"Baloo 2";font-size:19px;line-height:1.15}
+  .infobox p{margin:0;font-size:14px;color:var(--muted);line-height:1.4}
+  .infobox p b{color:var(--ink)}
+  .infobox .btn{margin-top:10px}
+  .brand b{font-family:"Baloo 2";font-size:34px;line-height:1}.brand b span{color:var(--accent)}
+  .brand small{display:block;font-weight:900;color:var(--accent);letter-spacing:.04em}
+  .brand em{display:block;font-style:normal;color:var(--muted);font-weight:700;font-size:14px}
+  .chip{background:var(--card);border:2px solid var(--line);border-radius:999px;padding:4px 10px;font-weight:900;font-size:14px;white-space:nowrap}
+  .chip.flag{font-size:18px;padding:2px 9px;line-height:1.3;cursor:pointer;font-family:inherit;color:inherit}
+  .langs{display:flex;flex-direction:column;gap:10px;margin-top:16px}
+  .lang{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--card);border:2px solid var(--line);border-bottom-width:4px;border-radius:16px;padding:12px 14px;font:inherit;color:inherit;cursor:pointer}
+  .lang .fl{font-size:34px;line-height:1}.lang .grow{flex:1}.lang b{font-size:18px;display:block}.lang small{color:var(--muted);display:block;font-weight:700;font-size:13px}
+  .lang.on{border-color:var(--accent)}.lang.off{opacity:.55;border-style:dashed;cursor:default}
+
+  /* ----- início ----- */
+  .hello{display:flex;align-items:center;gap:12px;margin:16px 16px 4px}
+  .hello .mbox{width:92px;height:92px;cursor:pointer}
+  .next{margin:14px 16px 0;background:var(--accent);color:#fff;border-radius:18px;padding:14px 16px;display:flex;align-items:center;gap:14px;box-shadow:0 5px 0 var(--accent-d);width:calc(100% - 32px);text-align:left}
+  .next:active{transform:translateY(3px);box-shadow:0 2px 0 var(--accent-d)}
+  .next .ic{font-size:30px;width:52px;height:52px;border-radius:14px;background:rgba(255,255,255,.18);display:grid;place-items:center;flex:none}
+  .next small{display:block;font-weight:900;font-size:11px;letter-spacing:.14em;text-transform:uppercase;opacity:.85}
+  .next b{font-size:19px;font-family:"Baloo 2";line-height:1.1}
+  .next .g{font-size:14px;opacity:.92;display:block;margin-top:2px}
+  .revbtn{margin:12px 16px 0;display:flex;gap:12px;align-items:center;width:calc(100% - 32px);text-align:left;background:var(--card);border:2px solid var(--line);border-bottom-width:4px;border-radius:16px;padding:12px 14px}
+  .revbtn .n{width:40px;height:40px;border-radius:12px;background:var(--soft);display:grid;place-items:center;font-size:20px}
+  .revbtn b{display:block}.revbtn span{font-size:13px;color:var(--muted)}
+
+  /* ----- mapa ----- */
+  .block{margin:24px 16px 8px}
+  .bhead{background:var(--card);border:2px solid var(--line);border-radius:20px;padding:14px 16px}
+  .lvl{display:inline-block;font-size:11px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;padding:3px 9px;border-radius:99px;background:var(--soft);color:var(--accent)}
+  .bhead h2{font-size:24px;margin:6px 0 0;line-height:1.1}
+  .bhead p{margin:2px 0 0;color:var(--muted);font-size:14px}
+  .pbar{height:12px;background:var(--tint);border-radius:99px;overflow:hidden;margin-top:12px}
+  .pbar i{display:block;height:100%;background:var(--accent);border-radius:99px;transition:width .5s}
+  .pcount{font-size:13px;font-weight:800;color:var(--muted);margin-top:6px}
+  .path{display:flex;flex-direction:column;align-items:center;gap:16px;padding:28px 0 6px}
+  .node{display:flex;flex-direction:column;align-items:center;gap:4px;position:relative}
+  .node .c{width:72px;height:68px;border-radius:50%;display:grid;place-items:center;font-size:28px;background:var(--accent);box-shadow:0 6px 0 var(--accent-d);transition:transform .1s}
+  .node:active .c{transform:translateY(3px)}
+  .node.done .c{background:var(--card);border:3px solid var(--accent);box-shadow:0 6px 0 var(--line2);color:var(--accent);font-weight:900}
+  .node.locked .c{background:var(--tint);box-shadow:0 6px 0 var(--line2);font-size:22px}
+  .node.locked{cursor:not-allowed}
+  .node .lb{font-weight:800;font-size:14px;text-align:center;max-width:180px;line-height:1.15}
+  .node .lb small{display:block;font-weight:700;color:var(--muted);font-size:12px}
+  .node .st{font-size:13px;color:var(--accent);letter-spacing:1px;height:15px}
+  .node .go{display:block;margin-bottom:4px;background:var(--card);border:2px solid var(--line);border-radius:10px;padding:2px 10px;font-weight:900;font-size:12px;color:var(--accent);letter-spacing:.08em;animation:bob 1.4s ease-in-out infinite}
+  .node.cur .c{outline:4px solid var(--soft);outline-offset:4px}
+  .soon{margin:12px 16px;display:flex;gap:14px;align-items:center;background:transparent;border:2px dashed var(--line2);border-radius:16px;padding:12px 14px;color:var(--muted)}
+  .soon .e{font-size:24px;filter:grayscale(1);opacity:.6}
+  .soon b{display:block;color:var(--ink);opacity:.7}
+  .soon span{font-size:13px}
+
+  /* ----- barra inferior ----- */
+  .nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:560px;display:flex;background:var(--bg);border-top:2px solid var(--line);z-index:9;padding:6px 6px 10px}
+  .nav button{flex:1;padding:7px 0;border-radius:12px;font-weight:900;font-size:12px;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:1px}
+  .nav button .i{font-size:21px;filter:grayscale(1);opacity:.55}
+  .nav button .mi{width:26px;height:26px}
+  .nav button.on{color:var(--accent);background:var(--soft)}
+  .nav button.on .i{filter:none;opacity:1}
+
+  /* ----- telas de painel ----- */
+  .pad{padding:16px}
+  .h1{font-size:28px;margin:4px 4px 12px;line-height:1.1}
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+  .card{background:var(--card);border:2px solid var(--line);border-radius:16px;padding:14px}
+  .card b{display:block;font-size:24px;font-family:"Baloo 2";line-height:1.1}
+  .card span{font-size:12px;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:.05em}
+  .big{grid-column:1/-1;display:flex;align-items:center;gap:16px}
+  .ring{width:84px;height:84px;flex:none;border-radius:50%;display:grid;place-items:center;font-weight:900;font-size:20px}
+  .ring i{width:66px;height:66px;border-radius:50%;background:var(--card);display:grid;place-items:center;font-style:normal}
+  .chart{display:flex;align-items:flex-end;gap:8px;height:110px}
+  .chart div{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end}
+  .chart i{width:100%;background:var(--accent);border-radius:6px 6px 2px 2px;min-height:3px;opacity:.9}
+  .chart small{font-size:11px;color:var(--muted);font-weight:800}
+  .chart em{font-size:10px;font-style:normal;font-weight:900;color:var(--accent)}
+  .list{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+  .row{display:flex;align-items:center;gap:10px;background:var(--card);border:2px solid var(--line);border-radius:12px;padding:10px 12px;font-size:14px}
+  .row .grow{flex:1}.row small{color:var(--muted);display:block}
+  .tag{font-weight:900;font-size:12px;padding:3px 8px;border-radius:99px;background:var(--soft);color:var(--accent);white-space:nowrap}
+  .stitle{font-weight:900;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:22px 4px 4px}
+  .empty{color:var(--muted);font-size:14px;padding:8px 4px;margin:0}
+  .ach{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+  /* desafio surpresa e itens do mascote */
+  .step{position:relative;width:100%;display:flex;justify-content:center}
+  .node.chal{position:absolute;top:4px;width:96px;z-index:1}
+  .node.chal.side-l{left:6px}.node.chal.side-r{right:6px}
+  .node.chal .lb{font-size:12px;max-width:96px}.node.chal .lb small{font-size:11px}
+  .node.chal .extra{display:inline-block;font-size:10px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);background:var(--soft);border-radius:99px;padding:1px 7px;margin-bottom:2px}
+  .node.chal .c{width:54px;height:50px;font-size:26px;background:var(--card);border:3px dashed var(--accent);box-shadow:0 5px 0 var(--line2);animation:shakegift 2.6s ease-in-out infinite}
+  .node.chal.won .c{border-style:solid;animation:none}
+  .node.chal.locked .c{border-color:var(--line2);background:var(--tint);animation:none;filter:grayscale(1);opacity:.65}
+  @keyframes shakegift{0%,78%,100%{transform:rotate(0)}84%{transform:rotate(-9deg)}90%{transform:rotate(9deg)}95%{transform:rotate(-4deg)}}
+  .prize{margin-top:14px;display:flex;gap:14px;align-items:center;background:var(--card);border:2px solid var(--accent);border-radius:16px;padding:12px 14px;text-align:left}
+  .prize .pe{font-size:36px}.prize b{display:block;font-family:"Baloo 2";font-size:22px;line-height:1.1}
+  .prize small{display:block;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:900}
+  .items{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+  .items .item{background:var(--card);border:2px solid var(--line);border-radius:16px;padding:12px;text-align:center;font:inherit;color:inherit}
+  .items .item.on{border-color:var(--accent);background:var(--soft)}
+  .items .item.off{opacity:.55}
+  .items .e{font-size:30px;display:block}.items b{display:block;font-size:14px;margin-top:2px}.items span{font-size:12px;color:var(--muted)}
+  .ach div{background:var(--card);border:2px solid var(--line);border-radius:16px;padding:14px;text-align:center}
+  .ach div.on{border-color:var(--accent);background:var(--soft)}
+  .ach div.off{opacity:.5;filter:grayscale(1)}
+  .ach .e{font-size:32px}.ach b{display:block;font-size:14px;margin-top:4px}.ach span{font-size:12px;color:var(--muted)}
+
+  /* ----- escolha de mascote ----- */
+  .pick{padding:18px 16px 140px}
+  .pick h1{font-size:30px;margin:0;line-height:1.1;text-align:center}
+  .pick .sub{text-align:center;color:var(--muted);margin:4px 0 14px}
+  .preview{display:flex;align-items:center;gap:12px;background:var(--card);border:2px solid var(--line);border-radius:20px;padding:12px;min-height:128px}
+  .preview .mbox{width:104px;height:104px}
+  .preview .who{font-family:"Baloo 2";font-size:24px;font-weight:800;line-height:1}
+  .preview .per{font-size:14px;color:var(--muted);margin:2px 0 8px}
+  .mgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+  .mcard{background:var(--card);border:2px solid var(--line);border-bottom-width:4px;border-radius:18px;padding:10px 6px 8px;text-align:center;transition:transform .1s}
+  .mcard:active{transform:translateY(2px)}
+  .mcard .mbox{width:76px;height:76px;margin:0 auto}
+  .mcard b{display:block;font-family:"Baloo 2";font-size:18px;line-height:1.1}
+  .mcard span{font-size:12px;color:var(--muted);font-weight:700}
+  .mcard .dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:4px;vertical-align:middle}
+  .mcard.sel{border-color:var(--accent);background:var(--soft)}
+  @media (max-width:380px){.mgrid{grid-template-columns:repeat(2,1fr)}}
+
+  /* ----- lição ----- */
+  .top{display:flex;align-items:center;gap:12px;padding:12px 16px;position:sticky;top:0;background:var(--bg);z-index:5}
+  .x{font-size:24px;color:var(--muted);padding:4px 8px}
+  .bar{flex:1;height:14px;background:var(--tint);border-radius:99px;overflow:hidden}
+  .bar i{display:block;height:100%;width:0;background:var(--accent);border-radius:99px;transition:width .4s ease}
+  .qcount{font-weight:900;color:var(--muted);font-size:14px;min-width:34px;text-align:right}
+  .page{padding:4px 20px 150px;font-size:17px;line-height:1.55}
+  .kicker{font-weight:900;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+  .page h2{font-size:30px;line-height:1.05;margin:4px 0 2px}
+  .page .ptitle{color:var(--muted);font-size:15px;margin:0 0 12px}
+  .goal{display:flex;gap:10px;align-items:flex-start;background:var(--soft);border-radius:14px;padding:10px 12px;margin:0 0 16px;font-weight:800;font-size:15px}
+  .goal small{display:block;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:900}
+  .ex{background:var(--card);border:2px solid var(--line);border-radius:14px;padding:9px 12px;margin:0 0 8px;display:flex;gap:10px;align-items:center}
+  .ex .en{font-weight:800}
+  .ex .pt{display:block;font-size:14px;color:var(--muted);line-height:1.35}
+  .tip{background:var(--card);border:2px dashed var(--line2);border-radius:14px;padding:11px 13px;margin:14px 0;font-size:15px}
+  .hint{font-size:13px;color:var(--muted);margin-top:8px}
+  .spk{flex:none;background:var(--soft);color:var(--accent);width:34px;height:34px;border-radius:50%;font-size:15px}
+  .say{display:flex;gap:10px;align-items:center;margin:0 0 16px}
+  .say .mbox{width:70px;height:70px}
+  .say .bubble{flex:1;font-weight:700}
+  .dlg{display:flex;flex-direction:column;gap:8px;margin:0 0 14px}
+  .dl{display:flex;gap:8px;align-items:flex-end}
+  .dl.me{flex-direction:row-reverse}
+  .av{flex:none;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:900;font-size:14px;background:#8A847A}
+  .dl.me .av{background:var(--accent)}
+  .dl .b{max-width:80%;background:var(--card);border:2px solid var(--line);border-radius:16px 16px 16px 4px;padding:7px 10px;font-size:16px;font-weight:700;display:flex;gap:8px;align-items:center}
+  .dl.me .b{background:var(--soft);border-color:transparent;border-radius:16px 16px 4px 16px}
+  .dl .b .spk{width:28px;height:28px;font-size:13px}
+  .q{padding:4px 18px 200px}
+  .qhead{display:flex;justify-content:space-between;align-items:flex-end;gap:8px}
+  .qm{flex:none;width:54px;height:54px;margin:-8px 0 -6px}
+  .q .type{font-weight:900;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+  .sit{background:var(--tint);border-radius:12px;padding:9px 12px;font-size:15px;margin:10px 0 12px;display:flex;gap:8px;font-weight:700}
+  .q h3{font-size:24px;line-height:1.2;margin:6px 0 14px}
+  .q .sent{font-size:19px;font-weight:800;background:var(--card);border:2px solid var(--line);border-radius:14px;padding:11px 13px;margin-bottom:14px;display:flex;gap:10px;align-items:center}
+  .opts{display:flex;flex-direction:column;gap:10px}
+  .opt{background:var(--card);border:2px solid var(--line);border-bottom-width:4px;border-radius:14px;padding:13px 15px;text-align:left;font-size:17px;font-weight:800;transition:transform .08s}
+  .opt:active{transform:translateY(2px)}
+  .opt.sel{border-color:var(--accent);background:var(--soft)}
+  .opt.good{border-color:var(--ok);background:var(--ok-l)}
+  .opt.bad{border-color:var(--no);background:var(--no-l)}
+  .opt:disabled{cursor:default}
+  .slot{min-height:60px;border-bottom:2px solid var(--line2);display:flex;flex-wrap:wrap;gap:8px;padding:6px 0 12px;margin-bottom:20px;align-content:flex-start}
+  .bank{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+  .w{background:var(--card);border:2px solid var(--line);border-bottom-width:4px;border-radius:12px;padding:8px 13px;font-size:17px;font-weight:800}
+  .w.used{visibility:hidden}
+  .pairs{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .pairs .opt{text-align:center;font-size:15px;padding:13px 6px}
+  .pairs .opt.done{opacity:.4;border-color:var(--ok);background:var(--ok-l)}
+  .shake{animation:shake .35s}
+  @keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+  .foot{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:560px;padding:12px 16px 16px;background:var(--bg);border-top:2px solid var(--line);z-index:10}
+  .foot.ok{background:var(--ok-l);border-color:var(--ok)}
+  .foot.no{background:var(--no-l);border-color:var(--no)}
+  .fb{display:none;gap:10px;align-items:flex-start;margin-bottom:12px}
+  .foot.ok .fb,.foot.no .fb{display:flex;animation:in .25s}
+  .fb .mbox{width:64px;height:64px;margin-top:-4px}
+  .fb .h{font-family:"Baloo 2";font-size:19px;line-height:1.15;display:block}
+  .foot.ok .fb .h{color:var(--ok)} .foot.no .fb .h{color:var(--no)}
+  .fb .pt{font-size:13px;color:var(--muted);display:block}
+  .fb p{margin:6px 0 0;font-size:15px;line-height:1.4}
+  .btn{width:100%;padding:14px;border-radius:14px;font-size:17px;font-weight:900;letter-spacing:.04em;text-transform:uppercase;color:#fff;background:var(--accent);box-shadow:0 4px 0 var(--accent-d)}
+  .btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--accent-d)}
+  .btn:disabled{background:#CFC9BE;box-shadow:0 4px 0 #B5AEA2;cursor:default}
+  .foot.ok .btn{background:var(--ok);box-shadow:0 4px 0 #1F5536}
+  .foot.no .btn{background:var(--no);box-shadow:0 4px 0 #7F3127}
+  .btn.ghost{background:var(--card);color:var(--ink);box-shadow:0 4px 0 var(--line2);border:2px solid var(--line)}
+  /* incentivo e conclusão */
+  .pep{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px 22px 140px}
+  .pep .mbox{width:170px;height:170px}
+  .pep .bubble{font-size:20px;max-width:380px;margin-top:10px}
+  .pep .bubble::before{content:"";position:absolute;left:50%;top:-9px;width:14px;height:14px;background:var(--card);border-left:2px solid var(--line);border-top:2px solid var(--line);transform:translateX(-50%) rotate(45deg)}
+  .pep .bubble.tip{font-size:21px}
+  .pep .bubble.tip .te{display:block;font-size:34px;line-height:1;margin-bottom:6px}
+  .pep .bubble.tip small{font-size:15px;line-height:1.4;margin-top:6px}
+  .pep .meta{margin-top:14px;color:var(--muted);font-weight:800;font-size:14px}
+  .end{padding:22px 20px 190px;text-align:center}
+  .end .mbox{width:150px;height:150px;margin:0 auto}
+  .end h2{font-size:32px;margin:4px 0 0;line-height:1.05}
+  .end .sub{color:var(--muted);font-weight:700}
+  .end .bubble{display:inline-block;margin-top:10px}
+  .end .st{font-size:34px;color:var(--accent);letter-spacing:6px;margin:8px 0 6px}
+  .cards3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .cards3 .card{padding:10px 4px}.cards3 b{font-size:21px}
+  .done-goal{margin-top:12px;background:var(--soft);border-radius:14px;padding:10px 12px;text-align:left;font-weight:800;font-size:15px}
+  .done-goal small{display:block;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);font-weight:900}
+  .xpl{text-align:left;margin-top:12px}
+  .xpl div{display:flex;justify-content:space-between;font-size:14px;padding:5px 2px;border-bottom:1px dashed var(--line2);font-weight:700}
+  .xpl div b{color:var(--accent)}
+  .bprog{margin-top:14px;text-align:left;background:var(--card);border:2px solid var(--line);border-radius:16px;padding:13px}
+  .bprog .t{font-weight:900;font-size:14px}
+  .bprog .steps{display:flex;gap:6px;margin-top:10px}
+  .bprog .steps i{flex:1;height:10px;border-radius:99px;background:var(--tint)}
+  .bprog .steps i.on{background:var(--accent)}
+  .bprog .n{font-size:13px;color:var(--muted);margin-top:8px}
+  .newach{margin-top:12px;background:var(--card);border:2px solid var(--accent);border-radius:14px;padding:11px;text-align:left;font-size:14px}
+  .newach b{display:block;font-size:15px}
+  .confetti{position:fixed;top:-12px;width:9px;height:13px;z-index:50;pointer-events:none;animation:fall linear forwards;border-radius:2px}
+  @keyframes fall{to{transform:translateY(105vh) rotate(720deg)}}
+  .toast{position:fixed;top:16px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:12px;font-weight:800;z-index:60;animation:in .3s;max-width:90vw;text-align:center}
+  .mbox{display:none !important}.spk{display:none !important}
+  .hello .bubble.left::before{display:none}.hello .bubble{flex:1}
+  .ex .en{font-family:ui-monospace,Menlo,Consolas,monospace;font-weight:800}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* =========================================================
+   MARCA E FALAS (sem mascote)
+   O app usa um único tema. As falas aparecem em balões: [frase, complemento].
+   ========================================================= */
+const MASCOTS = {
+  logi: {
+    name: "Lógica", speciesPt: "", colorPt: "", personality: "",
+    pal: {body:"#9DB4CC", accent:"#2F5D8C", accentD:"#22466B", soft:"#E6EEF6"},
+    msgs: {
+      welcome:  [["Bora treinar lógica?","Uma fase por vez, sem pressa."],["Bom te ver de novo!","Hoje é dia de ganhar pontos na prova."],["Cada questão conta.","Quem treina aqui, acerta lá."]],
+      happy:    [["Certo!","Raciocínio afiado."],["Isso mesmo!","A banca não te pegou."],["Mandou bem!","Segue assim."]],
+      sad:      [["Quase!","Leia a explicação com calma."],["Faz parte.","Errar aqui é melhor que errar na prova."],["Opa!","Essa vai para a revisão."]],
+      oops:     [["Faltou pouco!","Errar aqui é melhor que errar na prova."],["Tudo bem.","Leia as explicações e tente de novo."]],
+      excited:  [["Fase concluída!","Mais um passo rumo à aprovação."],["Muito bem!","Esse conteúdo cai muito."],["Show!","Siga para a próxima."]],
+      celebrate:[["Tópico completo!","Agora é revisar e fazer questões de prova."],["Que evolução!","Esse tópico já é seu."]],
+      surprise: [["Pegadinha à vista!","Leia tudo antes de responder."]],
+      gift:     [["Conquista liberada!","Continue assim."]],
+      streak:   [["Dia {n}!","Constância é o que aprova."],["{n} dias seguidos!","Você está criando o hábito."],["{n} dias!","Pouco por dia vale muito."]],
+      encourage:[["Continue assim!","Constância vence a prova."],["Você está evoluindo.","Cada acerto é um ponto a mais."],["Respire e leia com calma.","A pressa é inimiga do raciocínio."],["Mais 5 feitas!","Bora para as próximas."]]
+    }
+  }
+};
+const _bags = {};
+function mascotLine(id, mood){
+  const src = MASCOTS.logi.msgs, key = mood, list = src[mood] || src.encourage;
+  if (!_bags[key] || !_bags[key].length){ _bags[key] = list.map((_,i)=>i).sort(()=>Math.random()-.5); }
+  return list[_bags[key].pop()];
+}
+function applyTheme(){
+  const p = MASCOTS.logi.pal, r = document.documentElement.style;
+  r.setProperty("--accent", p.accent); r.setProperty("--accent-d", p.accentD);
+  r.setProperty("--soft", p.soft); r.setProperty("--mbody", p.body);
+}
+/* ícone do app (usado só no menu "Perfil") */
+function mascotSVG(){ return `<svg viewBox="0 0 40 40" class="msvg"><rect x="3" y="3" width="34" height="34" rx="10" fill="var(--accent)"/><text x="20" y="26" text-anchor="middle" font-size="15" font-weight="900" fill="#fff" font-family="system-ui,sans-serif">p→q</text></svg>`; }
+const PRIZES = {};
+const CHALLENGES = [];
+
+
+/* =========================================================
+   TÓPICO 1 — LÓGICA PROPOSICIONAL
+   Leitura: {p} (texto, aceita HTML) | {ex, pt} (exemplo + legenda) | {tip}
+   Pergunta: type choice | match | build · kind · situation · prompt · options/answer · explain (aceita HTML)
+   ========================================================= */
+const CE = ["Certo", "Errado"];   // questões no estilo Cebraspe
+const TOPIC1 = {
+  id: "t1", title: "Lógica Proposicional", pt: "A base de tudo", level: "Tópico 1", emoji: "🧩",
+  goal: "Reconhecer proposições, conectivos e montar o tamanho de uma tabela-verdade.",
+  doneMsg: "Agora você reconhece proposições, conectivos e sabe quantas linhas tem uma tabela-verdade.",
+  phases: [
+    {
+      id: "t1p1", title: "O que é proposição", pt: "Frase que pode ser V ou F", emoji: "💬",
+      goal: "Reconhecer o que é e o que não é proposição",
+      reading: [
+        {p: "<b>Proposição</b> é uma frase <b>declarativa</b> que pode ser julgada como <b>verdadeira (V)</b> ou <b>falsa (F)</b>, nunca as duas ao mesmo tempo."},
+        {ex: "Porto Alegre é a capital do RS.", pt: "É proposição (verdadeira)"},
+        {ex: "2 + 2 = 5", pt: "É proposição (falsa, mas é proposição)"},
+        {ex: "Que dia lindo!", pt: "Não é: exclamação"},
+        {ex: "Você estudou hoje?", pt: "Não é: pergunta"},
+        {ex: "Estude lógica.", pt: "Não é: ordem"},
+        {ex: "x + 3 = 10", pt: "Não é: sentença aberta (depende do valor de x)"},
+        {tip: "💡 A banca adora: <b>pergunta, exclamação, ordem e sentença aberta</b> não são proposições. Paradoxo (“Esta frase é falsa”) também não."}
+      ],
+      questions: [
+        {type: "choice", kind: "Identifique", prompt: "Qual das frases é uma proposição?",
+         options: ["O Brasil fica na Europa.", "Feche a porta.", "Será que vai chover?", "x é maior que 5."], answer: 0,
+         explain: "É declarativa e pode ser julgada: é <b>falsa</b>, mas é proposição. As outras são ordem, pergunta e sentença aberta."},
+        {type: "choice", kind: "Certo ou errado", prompt: "“Ele é o melhor jogador do time” é uma proposição.",
+         options: CE, answer: 1,
+         explain: "Não dá para saber quem é “ele”: é uma <b>sentença aberta</b>, não pode ser julgada como V ou F."},
+        {type: "match", kind: "Associe", prompt: "Ligue cada frase ao que ela é",
+         pairs: [["Que prova difícil!", "Exclamação"], ["Leia o edital.", "Ordem"], ["y − 2 = 8", "Sentença aberta"], ["7 é um número primo.", "Proposição"]],
+         explain: "Só a declarativa que pode ser julgada (7 é primo: V) é proposição."}
+      ]
+    },
+    {
+      id: "t1p2", title: "Conectivos", pt: "e, ou, se…então, se e somente se", emoji: "🔗",
+      goal: "Conhecer os conectivos e seus símbolos",
+      reading: [
+        {p: "Proposições simples se juntam com <b>conectivos</b> e formam proposições <b>compostas</b>."},
+        {ex: "p ∧ q", pt: "Conjunção: p e q"},
+        {ex: "p ∨ q", pt: "Disjunção: p ou q"},
+        {ex: "p ⊻ q", pt: "Disjunção exclusiva: ou p ou q (só uma)"},
+        {ex: "p → q", pt: "Condicional: se p, então q"},
+        {ex: "p ↔ q", pt: "Bicondicional: p se e somente se q"},
+        {ex: "~p", pt: "Negação: não p (também aparece como ¬p)"},
+        {tip: "💡 O condicional também aparece como “q, se p”, “quando p, q” e “p implica q”. Leia com calma: a banca disfarça o conectivo."}
+      ],
+      questions: [
+        {type: "match", kind: "Associe", prompt: "Ligue cada símbolo ao seu conectivo",
+         pairs: [["∧", "e"], ["∨", "ou"], ["→", "se…, então…"], ["↔", "se e somente se"]],
+         explain: "Esses quatro símbolos aparecem em quase toda prova."},
+        {type: "choice", kind: "Identifique", prompt: "Em “Se estudo, então passo”, qual é o conectivo?",
+         options: ["Condicional (→)", "Conjunção (∧)", "Bicondicional (↔)"], answer: 0,
+         explain: "“Se…, então…” é o <b>condicional</b>."},
+        {type: "choice", kind: "Identifique", prompt: "“Ou vou ao cinema, ou vou ao teatro” (não as duas coisas) usa qual conectivo?",
+         options: ["Disjunção exclusiva (⊻)", "Disjunção inclusiva (∨)", "Conjunção (∧)"], answer: 0,
+         explain: "“Ou…, ou…” indica que só uma pode acontecer: <b>disjunção exclusiva</b>."}
+      ]
+    },
+    {
+      id: "t1p3", title: "Simples ou composta", pt: "Contando as proposições", emoji: "🔢",
+      goal: "Contar as proposições simples e escrever em símbolos",
+      reading: [
+        {p: "Proposição <b>simples</b> tem uma ideia só. <b>Composta</b> junta duas ou mais com conectivos."},
+        {ex: "João é médico.", pt: "Simples"},
+        {ex: "João é médico e Ana é advogada.", pt: "Composta: p ∧ q"},
+        {ex: "Se chover, então não vou à praia.", pt: "Composta: p → ~q"},
+        {tip: "💡 “João e Ana são médicos” são duas proposições: “João é médico” e “Ana é médica”."}
+      ],
+      questions: [
+        {type: "choice", kind: "Conte", prompt: "Quantas proposições simples há em: “Se Ana estuda e Bia trabalha, então Caio viaja”?",
+         options: ["3", "2", "1"], answer: 0,
+         explain: "p: Ana estuda · q: Bia trabalha · r: Caio viaja. Fica <b>(p ∧ q) → r</b>."},
+        {type: "choice", kind: "Traduza", situation: "p: chove · q: a rua fica seca",
+         prompt: "Como fica, em símbolos, “Se chove, então a rua não fica seca”?",
+         options: ["p → ~q", "~p → q", "p ∧ ~q"], answer: 0,
+         explain: "“Se chove” = p, “então” = →, “não fica seca” = ~q."},
+        {type: "choice", kind: "Certo ou errado", prompt: "“Paulo é engenheiro ou advogado” é uma proposição simples.",
+         options: CE, answer: 1,
+         explain: "Equivale a “Paulo é engenheiro <b>ou</b> Paulo é advogado”: é <b>composta</b>."}
+      ]
+    },
+    {
+      id: "t1p4", title: "Tabela-verdade", pt: "Quantas linhas?", emoji: "📋",
+      goal: "Saber quantas linhas tem uma tabela-verdade",
+      reading: [
+        {p: "A tabela-verdade mostra todas as combinações de V e F. Com <b>n</b> proposições simples, ela tem <b>2ⁿ linhas</b>."},
+        {ex: "1 proposição", pt: "2 linhas"},
+        {ex: "2 proposições", pt: "4 linhas"},
+        {ex: "3 proposições", pt: "8 linhas"},
+        {ex: "4 proposições", pt: "16 linhas"},
+        {tip: "💡 Conte só as proposições <b>diferentes</b>. Em (p ∧ q) → p, só existem p e q: 4 linhas."}
+      ],
+      questions: [
+        {type: "choice", kind: "Calcule", prompt: "Quantas linhas tem a tabela-verdade de (p ∨ q) → r?",
+         options: ["8", "6", "4"], answer: 0,
+         explain: "São 3 proposições (p, q, r): 2³ = <b>8</b>."},
+        {type: "choice", kind: "Calcule", prompt: "Quantas linhas tem a tabela-verdade de (p → q) ∧ (q → p)?",
+         options: ["4", "8", "16"], answer: 0,
+         explain: "Aparecem 4 letras, mas só 2 diferentes (p e q): 2² = <b>4</b>."},
+        {type: "choice", kind: "Certo ou errado", prompt: "A tabela-verdade de uma proposição com 5 proposições simples tem 32 linhas.",
+         options: CE, answer: 0,
+         explain: "2⁵ = 2 × 2 × 2 × 2 × 2 = <b>32</b>."}
+      ]
+    }
+  ]
+};
+
+
+/* =========================================================
+   TÓPICO 2 — JULGAMENTO DE PROPOSIÇÕES (valor lógico)
+   ========================================================= */
+const TOPIC2 = {
+  id: "t2", title: "Julgamento de Proposições", pt: "Valor lógico: V ou F", level: "Tópico 2", emoji: "⚖️",
+  goal: "Descobrir se uma proposição composta é verdadeira ou falsa.",
+  doneMsg: "Agora você julga qualquer proposição composta, conectivo por conectivo.",
+  phases: [
+    {
+      id: "t2p1", title: "Conjunção (e)", pt: "p ∧ q", emoji: "∧",
+      goal: "Saber quando p ∧ q é verdadeira",
+      reading: [
+        {p: "A <b>conjunção</b> (e) só é verdadeira quando <b>as duas</b> partes são verdadeiras."},
+        {ex: "V ∧ V = V", pt: "a única que dá verdadeiro"},
+        {ex: "V ∧ F = F", pt: ""},
+        {ex: "F ∧ V = F", pt: ""},
+        {ex: "F ∧ F = F", pt: ""},
+        {tip: "💡 Pense numa promessa: “Vou estudar <b>e</b> treinar”. Se faltar qualquer uma das duas, a promessa foi quebrada."}
+      ],
+      questions: [
+        {type: "choice", kind: "Julgue", situation: "p: “2 é par” (V) · q: “3 é par” (F)", prompt: "Qual o valor de p ∧ q?",
+         options: ["F", "V"], answer: 0, explain: "V ∧ F = <b>F</b>. Basta uma ser falsa."},
+        {type: "choice", kind: "Interprete", prompt: "Para “Ana passou e Bia passou” ser verdadeira, é preciso que:",
+         options: ["Ana e Bia tenham passado", "Pelo menos uma tenha passado", "Nenhuma tenha passado"], answer: 0,
+         explain: "Na conjunção, <b>as duas</b> partes precisam ser verdadeiras."},
+        {type: "choice", kind: "Certo ou errado", prompt: "Se p ∧ q é falsa, então p e q são necessariamente falsas.",
+         options: CE, answer: 1, explain: "Basta <b>uma</b> ser falsa para a conjunção ser falsa."}
+      ]
+    },
+    {
+      id: "t2p2", title: "Disjunções (ou)", pt: "p ∨ q e p ⊻ q", emoji: "∨",
+      goal: "Julgar o “ou” e o “ou…, ou…”",
+      reading: [
+        {p: "A <b>disjunção inclusiva</b> (∨) só é falsa quando <b>as duas</b> são falsas."},
+        {ex: "V ∨ F = V", pt: "basta uma verdadeira"},
+        {ex: "F ∨ F = F", pt: "a única que dá falso"},
+        {p: "A <b>disjunção exclusiva</b> (⊻) é verdadeira quando os valores são <b>diferentes</b>."},
+        {ex: "V ⊻ F = V", pt: "valores diferentes: verdadeiro"},
+        {ex: "V ⊻ V = F", pt: "as duas juntas não pode"},
+        {tip: "💡 “Ou…, ou…” com vírgula costuma ser a exclusiva. Só um “ou” é a inclusiva."}
+      ],
+      questions: [
+        {type: "choice", kind: "Julgue", situation: "p (V) · q (V)", prompt: "Qual o valor de p ∨ q?",
+         options: ["V", "F"], answer: 0, explain: "Na inclusiva, basta uma verdadeira: V ∨ V = <b>V</b>."},
+        {type: "choice", kind: "Julgue", situation: "p (V) · q (V)", prompt: "Qual o valor de p ⊻ q?",
+         options: ["F", "V"], answer: 0, explain: "Na exclusiva, as duas verdadeiras dá <b>F</b>."},
+        {type: "choice", kind: "Certo ou errado", prompt: "Para que “Carlos é policial ou bombeiro” seja falsa, Carlos não pode ser nenhum dos dois.",
+         options: CE, answer: 0, explain: "A disjunção inclusiva só é falsa quando <b>as duas</b> partes são falsas."}
+      ]
+    },
+    {
+      id: "t2p3", title: "Condicional", pt: "p → q", emoji: "→",
+      goal: "Lembrar quando o “se…, então…” é falso",
+      reading: [
+        {p: "O <b>condicional</b> p → q só é falso em um caso: <b>V → F</b> (antecedente verdadeiro e consequente falso)."},
+        {ex: "V → V = V", pt: ""},
+        {ex: "V → F = F", pt: "o único caso falso"},
+        {ex: "F → V = V", pt: ""},
+        {ex: "F → F = V", pt: ""},
+        {tip: "💡 Macete: <b>“Vera Fischer é falsa”</b> (V → F = F). Se o antecedente é falso, o condicional é sempre verdadeiro."}
+      ],
+      questions: [
+        {type: "choice", kind: "Julgue", situation: "p (V) · q (F)", prompt: "Qual o valor de p → q?",
+         options: ["F", "V"], answer: 0, explain: "V → F é o único caso <b>falso</b>."},
+        {type: "choice", kind: "Julgue", situation: "p (F) · q (F)", prompt: "Qual o valor de p → q?",
+         options: ["V", "F"], answer: 0, explain: "Antecedente falso: o condicional é sempre <b>V</b>."},
+        {type: "choice", kind: "Certo ou errado", prompt: "“Se 2 + 2 = 5, então a Lua é feita de queijo” é uma proposição verdadeira.",
+         options: CE, answer: 0, explain: "O antecedente (2 + 2 = 5) é falso. F → F = <b>V</b>."}
+      ]
+    },
+    {
+      id: "t2p4", title: "Bicondicional", pt: "p ↔ q", emoji: "↔",
+      goal: "Julgar o “se e somente se”",
+      reading: [
+        {p: "O <b>bicondicional</b> p ↔ q é verdadeiro quando os dois têm o <b>mesmo valor</b>."},
+        {ex: "V ↔ V = V", pt: ""},
+        {ex: "V ↔ F = F", pt: ""},
+        {ex: "F ↔ V = F", pt: ""},
+        {ex: "F ↔ F = V", pt: "iguais: verdadeiro"},
+        {tip: "💡 O ↔ é o oposto do ⊻: valores iguais dão V no ↔ e F no ⊻."}
+      ],
+      questions: [
+        {type: "choice", kind: "Julgue", situation: "p (F) · q (F)", prompt: "Qual o valor de p ↔ q?",
+         options: ["V", "F"], answer: 0, explain: "Valores iguais: <b>V</b>."},
+        {type: "match", kind: "Associe", prompt: "Ligue cada regra ao conectivo",
+         pairs: [["Só é V se as duas forem V", "∧"], ["Só é F se as duas forem F", "∨"], ["Só é F em V → F", "→"], ["É V com valores iguais", "↔"]],
+         explain: "Esse resumo resolve a maioria das questões de julgamento."},
+        {type: "choice", kind: "Certo ou errado", prompt: "Se p é V e q é F, então p ↔ q e p ⊻ q têm o mesmo valor lógico.",
+         options: CE, answer: 1, explain: "p ↔ q = <b>F</b> (valores diferentes) e p ⊻ q = <b>V</b>. São opostos."}
+      ]
+    },
+    {
+      id: "t2p5", title: "Julgando compostas", pt: "Vários conectivos juntos", emoji: "🧮",
+      goal: "Achar o valor de uma proposição com vários conectivos",
+      reading: [
+        {p: "Troque cada letra pelo valor e resolva por partes: primeiro os <b>parênteses</b>, depois a <b>negação</b>, por último o conectivo principal."},
+        {ex: "p = V · q = F · r = V", pt: "valores dados"},
+        {ex: "(p ∧ q) → r", pt: "(V ∧ F) → V  =  F → V  =  V"},
+        {ex: "~p ∨ q", pt: "F ∨ F  =  F"},
+        {tip: "💡 Se a questão diz que uma condicional é <b>falsa</b>, você já sabe tudo: o antecedente é V e o consequente é F."}
+      ],
+      questions: [
+        {type: "choice", kind: "Julgue", situation: "p = V · q = F · r = F", prompt: "Qual o valor de (p ∨ q) → r?",
+         options: ["F", "V"], answer: 0, explain: "(V ∨ F) = V. Depois V → F = <b>F</b>."},
+        {type: "choice", kind: "Julgue", situation: "p = F · q = V", prompt: "Qual o valor de ~p ∧ q?",
+         options: ["V", "F"], answer: 0, explain: "~p = V. Depois V ∧ V = <b>V</b>."},
+        {type: "choice", kind: "Certo ou errado", prompt: "Sabendo que “Se Ana viaja, então Bia fica” é falsa, conclui-se que Bia não ficou.",
+         options: CE, answer: 0, explain: "O condicional só é falso em V → F: Ana viajou (V) e Bia <b>não</b> ficou (F)."}
+      ]
+    }
+  ]
+};
+
+
+/* =========================================================
+   TÓPICO 3 — NEGAÇÃO DE PROPOSIÇÕES
+   ========================================================= */
+const TOPIC3 = {
+  id: "t3", title: "Negação de Proposições", pt: "Negar do jeito certo", level: "Tópico 3", emoji: "🔄",
+  goal: "Negar proposições simples, compostas e com quantificadores.",
+  doneMsg: "Agora você nega qualquer proposição sem cair nas pegadinhas da banca.",
+  phases: [
+    {
+      id: "t3p1", title: "Negação simples", pt: "~p", emoji: "🚫",
+      goal: "Negar uma proposição simples",
+      reading: [
+        {p: "Negar é <b>inverter o valor lógico</b>. Se p é V, ~p é F."},
+        {ex: "p: Ana é alta.", pt: "~p: Ana não é alta."},
+        {ex: "Não é verdade que Ana é alta.", pt: "outra forma de escrever ~p"},
+        {ex: "~(~p) = p", pt: "a dupla negação volta ao original"},
+        {tip: "💡 A negação de “Ana é alta” <b>não</b> é “Ana é baixa”: ela pode ter altura média. O certo é “Ana não é alta”."}
+      ],
+      questions: [
+        {type: "choice", kind: "Negue", prompt: "Qual é a negação de “O céu está nublado”?",
+         options: ["O céu não está nublado.", "O céu está limpo.", "O céu está ensolarado."], answer: 0,
+         explain: "Negar é só dizer que <b>não</b> está nublado. “Limpo” é um antônimo, não a negação."},
+        {type: "choice", kind: "Certo ou errado", prompt: "A negação de “João é rico” é “João é pobre”.",
+         options: CE, answer: 1, explain: "João pode ser classe média. A negação é <b>“João não é rico”</b>."},
+        {type: "choice", kind: "Simplifique", prompt: "~(~p) é igual a:",
+         options: ["p", "~p", "Nenhuma das duas"], answer: 0, explain: "Negar duas vezes volta ao original: <b>p</b>."}
+      ]
+    },
+    {
+      id: "t3p2", title: "Negar o “e” e o “ou”", pt: "Leis de De Morgan", emoji: "🔀",
+      goal: "Negar “e” e “ou” com as Leis de De Morgan",
+      reading: [
+        {p: "Para negar <b>e</b> ou <b>ou</b>: negue as duas partes e <b>troque o conectivo</b>."},
+        {ex: "~(p ∧ q) ⇔ ~p ∨ ~q", pt: "nega o e: vira ou"},
+        {ex: "~(p ∨ q) ⇔ ~p ∧ ~q", pt: "nega o ou: vira e"},
+        {ex: "Estudo e trabalho.", pt: "Negação: Não estudo ou não trabalho."},
+        {tip: "💡 Macete: <b>nega tudo e troca o conectivo</b> (e ↔ ou)."}
+      ],
+      questions: [
+        {type: "choice", kind: "Negue", prompt: "Negação de “Pedro é policial e Ana é juíza”:",
+         options: ["Pedro não é policial ou Ana não é juíza.", "Pedro não é policial e Ana não é juíza.", "Pedro é policial ou Ana é juíza."], answer: 0,
+         explain: "Nega as duas e troca <b>e</b> por <b>ou</b>."},
+        {type: "choice", kind: "Negue", prompt: "Negação de “Vou à praia ou ao clube”:",
+         options: ["Não vou à praia e não vou ao clube.", "Não vou à praia ou não vou ao clube.", "Vou à praia e ao clube."], answer: 0,
+         explain: "Nega as duas e troca <b>ou</b> por <b>e</b>."},
+        {type: "choice", kind: "Símbolos", prompt: "~(p ∨ ~q) é equivalente a:",
+         options: ["~p ∧ q", "~p ∨ q", "p ∧ ~q"], answer: 0,
+         explain: "Nega p (~p), nega ~q (vira q) e troca ∨ por <b>∧</b>: ~p ∧ q."}
+      ]
+    },
+    {
+      id: "t3p3", title: "Negar o condicional", pt: "~(p → q)", emoji: "↩️",
+      goal: "Negar o “se…, então…”",
+      reading: [
+        {p: "A negação de p → q é <b>p ∧ ~q</b>: mantém a primeira, troca por <b>e</b> e nega a segunda."},
+        {ex: "~(p → q) ⇔ p ∧ ~q", pt: ""},
+        {ex: "Se chove, então fico em casa.", pt: "Negação: Chove e não fico em casa."},
+        {tip: "💡 Macete <b>MA-NE</b>: <b>MA</b>ntém a primeira e <b>NE</b>ga a segunda, com “e” no meio. A negação de um condicional <b>nunca</b> é outro condicional."}
+      ],
+      questions: [
+        {type: "choice", kind: "Negue", prompt: "Negação de “Se estudo, então passo”:",
+         options: ["Estudo e não passo.", "Se não estudo, então não passo.", "Não estudo e passo."], answer: 0,
+         explain: "MA-NE: mantém “estudo”, nega “passo”, com <b>e</b> no meio."},
+        {type: "choice", kind: "Negue", prompt: "Negação de “Se Carlos é aprovado, então não viaja”:",
+         options: ["Carlos é aprovado e viaja.", "Carlos não é aprovado e viaja.", "Se Carlos não é aprovado, então viaja."], answer: 0,
+         explain: "Mantém “é aprovado” e nega “não viaja”, que vira <b>viaja</b>."},
+        {type: "choice", kind: "Certo ou errado", prompt: "A negação de “Se há sol, então vou à praia” é “Se não há sol, então não vou à praia”.",
+         options: CE, answer: 1, explain: "A negação do condicional não é condicional. O certo é <b>“Há sol e não vou à praia”</b>."}
+      ]
+    },
+    {
+      id: "t3p4", title: "Negar ↔ e ⊻", pt: "Um vira o outro", emoji: "🔁",
+      goal: "Negar o bicondicional e o “ou…, ou…”",
+      reading: [
+        {p: "Negar o <b>↔</b> dá o <b>⊻</b>, e negar o ⊻ dá o ↔."},
+        {ex: "~(p ↔ q) ⇔ p ⊻ q", pt: ""},
+        {ex: "~(p ⊻ q) ⇔ p ↔ q", pt: ""},
+        {ex: "Vou se e somente se você for.", pt: "Negação: Ou eu vou, ou você vai."},
+        {tip: "💡 Faz sentido: o ↔ é V com valores iguais e o ⊻ é V com valores diferentes. Um é exatamente o oposto do outro."}
+      ],
+      questions: [
+        {type: "choice", kind: "Negue", prompt: "Negação de “Ana viaja se e somente se Bia fica”:",
+         options: ["Ou Ana viaja, ou Bia fica.", "Ana não viaja se e somente se Bia não fica.", "Ana viaja e Bia não fica."], answer: 0,
+         explain: "~(p ↔ q) = <b>p ⊻ q</b>: “Ou Ana viaja, ou Bia fica”."},
+        {type: "choice", kind: "Certo ou errado", prompt: "~(p ⊻ q) é equivalente a p ↔ q.",
+         options: CE, answer: 0, explain: "Negar o ⊻ dá o <b>↔</b>."},
+        {type: "match", kind: "Associe", prompt: "Ligue cada negação ao seu resultado",
+         pairs: [["~(p ∧ q)", "~p ∨ ~q"], ["~(p ∨ q)", "~p ∧ ~q"], ["~(p → q)", "p ∧ ~q"], ["~(p ↔ q)", "p ⊻ q"]],
+         explain: "Essas quatro negações resolvem a maioria das questões do tópico."}
+      ]
+    },
+    {
+      id: "t3p5", title: "Todo, algum, nenhum", pt: "Negando quantificadores", emoji: "👥",
+      goal: "Negar frases com todo, algum e nenhum",
+      reading: [
+        {p: "Com quantificadores, a negação também tem regra própria."},
+        {ex: "Todo A é B.", pt: "Negação: Algum A não é B."},
+        {ex: "Algum A é B.", pt: "Negação: Nenhum A é B."},
+        {ex: "Nenhum A é B.", pt: "Negação: Algum A é B."},
+        {tip: "💡 A negação de “Todo político é honesto” <b>não</b> é “Nenhum político é honesto”. Basta <b>um</b> não ser: “Algum político não é honesto”."}
+      ],
+      questions: [
+        {type: "choice", kind: "Negue", prompt: "Negação de “Todos os candidatos foram aprovados”:",
+         options: ["Algum candidato não foi aprovado.", "Nenhum candidato foi aprovado.", "Todos os candidatos foram reprovados."], answer: 0,
+         explain: "Para derrubar o “todos”, basta <b>um</b> não ter sido aprovado."},
+        {type: "choice", kind: "Negue", prompt: "Negação de “Algum aluno faltou”:",
+         options: ["Nenhum aluno faltou.", "Algum aluno não faltou.", "Todos os alunos faltaram."], answer: 0,
+         explain: "A negação de “algum é” é <b>“nenhum é”</b>."},
+        {type: "choice", kind: "Certo ou errado", prompt: "A negação de “Nenhum gato é preto” é “Algum gato é preto”.",
+         options: CE, answer: 0, explain: "Para derrubar o “nenhum”, basta existir <b>um</b> gato preto."}
+      ]
+    }
+  ]
+};
+
+/* próximos tópicos (aparecem como "em breve") */
+const UPCOMING = [
+  {title: "Equivalência de Proposições", pt: "Frases diferentes, mesmo sentido", level: "Tópico 4", emoji: "🟰"},
+  {title: "Estruturas Lógicas", pt: "Deduções com premissas", level: "Tópico 5", emoji: "🏗️"},
+  {title: "Tautologia, Contradição e Contingência", pt: "Sempre V, sempre F ou depende", level: "Tópico 6", emoji: "♾️"},
+  {title: "Argumento Válido e Inválido", pt: "A conclusão segue das premissas?", level: "Tópico 7", emoji: "✅"},
+  {title: "Interpretação dos Quantificadores", pt: "Todo, algum, nenhum", level: "Tópico 8", emoji: "👥"},
+  {title: "Diagramas Lógicos", pt: "Conjuntos e diagramas de Venn", level: "Tópico 9", emoji: "⭕"},
+  {title: "Métodos Complementares", pt: "Atalhos para resolver mais rápido", level: "Tópico 10", emoji: "🧰"},
+  {title: "Lógica de Associação", pt: "Quem é quem: tabelas de associação", level: "Tópico 11", emoji: "🧷"}
+];
+
+
+/* ================== estrutura do curso ================== */
+const PEP_EVERY = 5;                          // a cada 5 exercícios, uma pausa: incentivo do mascote e dica para evoluir, alternando
+/* dicas de estudo (aparecem em ordem, uma por pausa) */
+const EN_TIPS = [
+  {e:"📖", t:"Leia a frase inteira", d:"A banca esconde o conectivo no meio da frase. Sublinhe o “e”, o “ou” e o “se…, então…” antes de responder."},
+  {e:"📋", t:"Na dúvida, monte a tabela", d:"Com 2 ou 3 proposições, a tabela-verdade no rascunho resolve em poucos segundos."},
+  {e:"🎯", t:"Decore quando dá falso", d:"∧: basta um F · ∨: só F com F · →: só V → F. Com isso você julga quase tudo."},
+  {e:"⚠️", t:"Cuidado no Certo/Errado", d:"No estilo Cebraspe, um erro anula um acerto. Se não tiver certeza, deixe em branco."},
+  {e:"🧾", t:"Faça questões de prova", d:"Depois de cada tópico, resolva questões antigas da sua banca. É lá que você vê os disfarces."},
+  {e:"⏱️", t:"Pouco, todo dia", d:"15 minutos por dia valem mais que 3 horas no fim de semana. Mantenha a sua sequência 🔥."},
+  {e:"🔁", t:"Revise o que errou", d:"O que você errou vai para a Revisão. Revisar é o que transforma erro em acerto."},
+  {e:"💪", t:"Erre aqui, não na prova", d:"Cada erro aqui é uma pegadinha a menos no dia da prova."}
+];
+/* ================== idiomas ==================
+   Cada idioma tem os seus blocos, dicas e voz. O jogador pode estudar mais de um:
+   o XP de todos soma no total (S.xp) e fica separado por idioma em S.xpBy (para o ranking). */
+const COURSES = {
+  rl: {id:"rl", flag:"🧠", name:"Raciocínio Lógico", native:"Concursos", lang:"pt-BR", blocks:[TOPIC1, TOPIC2, TOPIC3], upcoming:UPCOMING, tips:EN_TIPS}
+};
+const SOON_COURSES = [];
+const PASS = 2/3;                             // acertos mínimos para concluir a fase (2 de 3)
+const PHASES = {};
+Object.values(COURSES).forEach(co=>co.blocks.forEach(b=>b.phases.forEach((p,i)=>PHASES[p.id]={p, b, i, course:co.id})));
+const QUESTIONS = {};
+Object.values(PHASES).forEach(({p,course})=>p.questions.forEach((q,k)=>QUESTIONS[p.id+":"+k]={...q, qid:p.id+":"+k, from:p, course}));
+const ALL_PHASES = Object.values(PHASES).map(x=>x.p);
+const CHAL_BONUS = 50, TRY_BONUS = 5;          // desafio surpresa: errar no máximo 1 · bônus na 1ª vitória · tentar sempre vale XP
+const CHAL = CHALLENGES.filter(c=>PHASES[c.after]).map(c=>({...c, b:PHASES[c.after].b, course:PHASES[c.after].course}));
+const CH_BY_ID = {}; CHAL.forEach(c=>{ CH_BY_ID[c.id]=c; c.questions.forEach((q,k)=>QUESTIONS[c.id+":s"+k]={...q, qid:c.id+":s"+k, from:{title:"Desafio surpresa"}, course:c.course}); });
+/* idioma atual: MAIN e MAIN_PHASES são só os blocos dele */
+let CUR, MAIN, MAIN_PHASES;
+function setCourse(id){ CUR=COURSES[id]||COURSES.rl; MAIN=CUR.blocks; MAIN_PHASES=MAIN.flatMap(b=>b.phases); }
+const LNAME = ()=>CUR.name.toLowerCase();
+const MULTI = Object.keys(COURSES).length>1;
+function courseMsgs(){ return CUR && CUR.msgs || null; }   // falas do mascote no idioma atual (inglês usa as falas do próprio mascote)
+const myReview = ()=>Object.keys(S.review).filter(id=>QUESTIONS[id] && QUESTIONS[id].course===CUR.id);
+
+/* ================== progresso salvo (neste aparelho) ================== */
+const KEY = "logica-v1";
+const fresh = ()=>({profile:{mascot:"logi", skin:null, accessories:[]}, phases:{}, xp:0, streak:0, best:0, last:null,
+                     days:{}, history:[], review:{}, achieved:{}, stats:{answered:0, correct:0, cleared:0}, challenges:{}, items:[], tipN:0,
+                     course:"rl", langs:["rl"], xpBy:null, tipBy:{}});
+let S = fresh(), storageOK = true;
+try{ const raw = localStorage.getItem(KEY); if (raw) S = Object.assign(fresh(), JSON.parse(raw)); }catch(e){ storageOK = false; }
+S.stats = Object.assign({answered:0, correct:0, cleared:0}, S.stats);
+S.profile = Object.assign({mascot:null, skin:null, accessories:[]}, S.profile);
+if (!S.challenges || typeof S.challenges!=="object") S.challenges = {};
+if (!Array.isArray(S.items)) S.items = [];
+if (S.profile.mascot && !MASCOTS[S.profile.mascot]) S.profile.mascot = null;
+/* idiomas: quem já jogava continua no inglês, com todo o XP contando como inglês */
+if (!COURSES[S.course]) S.course = "rl";
+if (!Array.isArray(S.langs) || !S.langs.length) S.langs = [S.course];
+S.langs = S.langs.filter(l=>COURSES[l]); if (!S.langs.includes(S.course)) S.langs.push(S.course);
+if (!S.xpBy || typeof S.xpBy!=="object") S.xpBy = {rl:S.xp||0};
+if (!S.tipBy || typeof S.tipBy!=="object") S.tipBy = {rl:0};
+S.profile.mascot = "logi";
+setCourse(S.course);
+function persist(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){ storageOK = false; } }
+
+const dayStr = (d=new Date())=>{ const z=new Date(d.getTime()-d.getTimezoneOffset()*6e4); return z.toISOString().slice(0,10); };
+function streakNow(){ if(!S.last) return 0; const y=dayStr(new Date(Date.now()-864e5)); return (S.last===dayStr()||S.last===y)?S.streak:0; }
+function touchDay(){ const t=dayStr(); if(S.last===t) return false; const y=dayStr(new Date(Date.now()-864e5));
+  const before=S.best||0;
+  S.streak=(S.last===y)?S.streak+1:1; S.last=t; S.best=Math.max(before,S.streak);
+  STREAK_UP={n:S.streak, record:S.streak>1 && S.streak>before};
+  setTimeout(showStreak, 1100);              // comemora o dia novo depois da tela de fim aparecer
+  return true; }
+let STREAK_UP=null;
+
+/* ================== comemoração de +1 dia na sequência ================== */
+const ACTIONS = {   // o que cada mascote faz na comemoração
+  dino:["stomp","Dino está pisando forte em sua homenagem!"], lumi:["glow","Lumi está brilhando por você!"],
+  foxy:["wag","Foxy está abanando o rabo de alegria!"], miko:["jump","Miko está pulando de animação!"],
+  bloop:["boing","Bloop está fazendo festa na lagoa!"], roki:["dance","Roki está dançando escondido!"]};
+function streakInsights(st){
+  const out=[], n=st.n, donePh=MAIN_PHASES.filter(p=>done(p.id));
+  const exprs=donePh.reduce((s,p)=>s+p.reading.filter(x=>x.ex).length,0), last=S.history[S.history.length-1];
+  if (st.record) out.push(`🏆 Novo recorde! Sua maior sequência agora é de ${n} dias.`);
+  if (n===1 && (S.best||0)>1) out.push(`🌱 Recomeço também conta: seu recorde é de ${S.best} dias, e você pode passar dele.`);
+  if (last) out.push(`✍️ Hoje você fez “${last.t}”, com ${last.c} de ${last.n} certas.`);
+  if (donePh.length) out.push(`🧠 Você já concluiu ${donePh.length} fase${donePh.length>1?"s":""} de raciocínio lógico.`);
+  const ms=[3,7,14,30,60,100,365].find(x=>x>n); if (ms) out.push(`🎯 Faltam ${ms-n} dia${ms-n>1?"s":""} para chegar a ${ms} dias seguidos.`);
+  return out.slice(0,3);
+}
+function showStreak(){
+  const st=STREAK_UP; STREAK_UP=null; if(!st || !M()) return;
+  document.querySelectorAll(".streak-ov").forEach(x=>x.remove());
+  const id=M(), act=ACTIONS[id]||["jump",""], lines=MASCOTS[id].msgs.streak||[["Day {n}!","Dia {n}!"]];
+  const pool=st.n===1?lines.filter(x=>/Day \{n\}|Tag \{n\}/.test(x[0])):lines, use=pool.length?pool:lines;
+  const l=use[Math.floor(Math.random()*use.length)].map(t=>t.replace(/\{n\}/g,st.n));
+  const week=[...Array(7)].map((_,i)=>{ const d=new Date(Date.now()-(6-i)*864e5), k=dayStr(d);
+    return `<i class="${S.days[k]?"on":""}"><b>${"DSTQQSS"[d.getDay()]}</b>${S.days[k]?"🔥":""}</i>`; }).join("");
+  const ov=document.createElement("div"); ov.className="streak-ov";
+  ov.innerHTML=`<div class="embers"></div><div class="sbox">
+      <div class="flame"><span class="f">🔥</span><b class="num">${Math.max(st.n-1,0)}</b></div>
+      <h2>${st.n===1?"Dia 1!":`${st.n} dias seguidos!`}</h2>
+      <div class="mbox act act-${act[0]}">${mascotSVG(id,"celebrate",{accessories:S.profile.accessories})}</div>
+      <div class="acttxt">${esc(act[1])}</div>
+      <div class="bubble">${esc(l[0])}<small>${esc(l[1])}</small></div>
+      <div class="week">${week}</div>
+      ${streakInsights(st).map(t=>`<div class="ins">${esc(t)}</div>`).join("")}
+      <button class="btn" id="sgo">Bora continuar</button></div>`;
+  document.body.appendChild(ov);
+  const em=ov.querySelector(".embers");
+  for(let i=0;i<36;i++){ const e=document.createElement("span"); e.className="ember"+(i%6===0?" big":"");
+    if(i%6===0) e.textContent="🔥"; e.style.left=Math.random()*100+"%"; e.style.animationDuration=(2.2+Math.random()*2.4)+"s";
+    e.style.animationDelay=(Math.random()*1.6)+"s"; em.appendChild(e); }
+  setTimeout(()=>{ const nb=ov.querySelector(".num"); if(nb){ nb.textContent=st.n; nb.classList.add("bump"); } tone([523,659,784,1046,1318]); }, 700);
+  ov.querySelector("#sgo").onclick=()=>{ sfx.tap(); ov.classList.add("out"); setTimeout(()=>ov.remove(),300); };
+}
+
+/* ================== utilidades ================== */
+const app = document.getElementById("app");
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const shuffle = a => { a=a.slice(); for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]];} return a; };
+const norm = s => s.toLowerCase().replace(/[.,!?]/g,"").replace(/\s+/g," ").trim();
+const done = id => !!(S.phases[id] && S.phases[id].stars);
+const starsTxt = n => "★".repeat(n)+"☆".repeat(3-n);
+const M = ()=>S.profile.mascot;
+const mbox = (mood, id=M(), extra="") => `<div class="mbox" ${extra}>${mascotSVG(id, mood, {accessories:S.profile.accessories})}</div>`;
+
+let actx;
+function tone(freqs){ try{ actx=actx||new (window.AudioContext||window.webkitAudioContext)();
+  freqs.forEach((f,i)=>{ const o=actx.createOscillator(), g=actx.createGain(); o.type="sine"; o.frequency.value=f;
+    const t=actx.currentTime+i*.09; g.gain.setValueAtTime(.0001,t); g.gain.exponentialRampToValueAtTime(.14,t+.02); g.gain.exponentialRampToValueAtTime(.0001,t+.22);
+    o.connect(g).connect(actx.destination); o.start(t); o.stop(t+.25); }); }catch(e){} }
+const sfx = {ok:()=>tone([660,880]), no:()=>tone([330,262]), tap:()=>tone([520]), win:()=>tone([523,659,784,1046])};
+function speak(text){ return;  try{ speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(text); u.lang=CUR.lang; u.rate=.9; speechSynthesis.speak(u); }catch(e){} }
+document.addEventListener("click", e=>{ const s=e.target.closest("[data-say]"); if(s){ e.stopPropagation(); speak(s.dataset.say); } });
+function confetti(n=60){
+  const cs = getComputedStyle(document.documentElement);
+  const colors=[cs.getPropertyValue("--accent").trim(), cs.getPropertyValue("--mbody").trim(), "#D9D3C7", "#26241F"];
+  for(let i=0;i<n;i++){ const d=document.createElement("div"); d.className="confetti"; d.style.left=Math.random()*100+"vw"; d.style.background=colors[i%colors.length];
+    d.style.animationDuration=(1.6+Math.random()*1.6)+"s"; d.style.animationDelay=(Math.random()*.4)+"s"; document.body.appendChild(d); setTimeout(()=>d.remove(),3800); }
+}
+function toast(msg){ const t=document.createElement("div"); t.className="toast"; t.textContent=msg; document.body.appendChild(t); setTimeout(()=>t.remove(),2600); }
+const dialogHTML = lines => `<div class="dlg">${lines.map(([who,t])=>`<div class="dl ${who==="Você"?"me":""}"><div class="av">${esc(who[0])}</div><div class="b"><button class="spk" data-say="${esc(t)}" aria-label="Ouvir">🔊</button><span>${esc(t)}</span></div></div>`).join("")}</div>`;
+
+/* ================== progresso / desbloqueio ================== */
+const chalOpen = c => done(c.after);
+const chalWon = c => !!(S.challenges[c.id] && S.challenges[c.id].won);
+/* itens do mascote: só um por lugar (cabeça, rosto ou visual) */
+const withItem = id => S.profile.accessories.filter(a=>!PRIZES[a] || PRIZES[a].slot!==PRIZES[id].slot).concat([id]);
+function equip(id){ S.profile.accessories = withItem(id); persist(); }
+function unequip(id){ S.profile.accessories = S.profile.accessories.filter(a=>a!==id); persist(); }
+function goNext(nx){ nx.type==="review" ? startReview() : nx.type==="challenge" ? startChallenge(nx.c.id) : startPhase(nx.p.id); }
+function unlocked(id){ const idx=MAIN_PHASES.findIndex(p=>p.id===id); return idx===0 || done(MAIN_PHASES[idx-1].id); }
+function nextActivity(){
+  const p = MAIN_PHASES.find(p=>!done(p.id));
+  if (p) return {type:"phase", p};
+  if (myReview().length) return {type:"review"};
+  const c = CHAL.find(c=>c.course===CUR.id && chalOpen(c) && !chalWon(c));
+  if (c) return {type:"challenge", c};
+  return {type:"all"};
+}
+const overallPct = ()=>Math.round(MAIN_PHASES.filter(p=>done(p.id)).length/MAIN_PHASES.length*100);
+const accuracy = ()=>S.stats.answered?Math.round(S.stats.correct/S.stats.answered*100):0;
+
+const ACH = [
+  {id:"first",  e:"🌱", t:"Primeiro passo",     d:"Conclua sua primeira fase",    ok:()=>ALL_PHASES.some(p=>done(p.id))},
+  {id:"perfect",e:"🎯", t:"Sem erros",           d:"Conclua uma fase sem errar",   ok:()=>Object.values(S.phases).some(x=>x.stars===3)},
+  {id:"t1",     e:"🧩", t:"Lógica Proposicional", d:"Conclua o Tópico 1",  ok:()=>TOPIC1.phases.every(p=>done(p.id))},
+  {id:"t2",     e:"⚖️", t:"Julgamento",           d:"Conclua o Tópico 2",  ok:()=>TOPIC2.phases.every(p=>done(p.id))},
+  {id:"t3",     e:"🔄", t:"Negação",              d:"Conclua o Tópico 3",  ok:()=>TOPIC3.phases.every(p=>done(p.id))},
+  {id:"ten",    e:"✍️", t:"10 exercícios",       d:"Responda 10 exercícios",       ok:()=>S.stats.answered>=10},
+  {id:"st3",    e:"🔥", t:"3 dias seguidos",     d:"Estude 3 dias em sequência",   ok:()=>(S.best||0)>=3},
+  {id:"st7",    e:"🏅", t:"Uma semana",          d:"Estude 7 dias em sequência",   ok:()=>(S.best||0)>=7},
+  {id:"rev5",   e:"🔁", t:"Revisor",             d:"Acerte 5 itens na revisão",    ok:()=>S.stats.cleared>=5},
+  {id:"xp300",  e:"⚡", t:"300 XP",              d:"Alcance 300 XP",               ok:()=>S.xp>=300}
+];
+function checkAch(){ const out=[]; ACH.forEach(a=>{ if(!S.achieved[a.id]&&a.ok()){ S.achieved[a.id]=dayStr(); out.push(a);} }); return out; }
+
+/* ================== escolha de mascote ================== */
+function pickScreen(mode){ // mode: "first" | "change"
+  let sel = mode==="change" ? M() : null;
+  const ids = Object.keys(MASCOTS);
+  function draw(){
+    applyTheme(sel);
+    const m = sel && MASCOTS[sel];
+    const line = sel ? mascotLine(sel,"welcome") : null;
+    app.innerHTML = `<div class="screen pick">
+      ${mode==="first"?`<div class="brand"><b>Blurty<span>.</span></b><small>Blurty it out!</small><em>Fale sem medo. Errar faz parte.</em></div>`:""}
+      <h1>${mode==="first"?"Escolha seu companheiro":"Trocar mascote"}</h1>
+      <p class="sub">${mode==="first"?"Ele vai te acompanhar em toda a jornada. Dá para trocar depois no Perfil.":"Seu XP, fases, conquistas e sequência continuam iguais."}</p>
+      <div class="preview">${sel ? `${mbox("welcome", sel)}<div><div class="who">${m.name}</div><div class="per">${m.speciesPt} · ${m.colorPt}<br>${esc(m.personality)}</div>
+          <div class="bubble" style="font-size:15px">“${esc(line[0])}”<small>${esc(line[1])}</small></div></div>`
+        : `<div style="flex:1;text-align:center;color:var(--muted);font-weight:800">Toque em um mascote para conhecer 👇</div>`}</div>
+      <div class="mgrid">${ids.map(id=>{ const x=MASCOTS[id]; return `<button class="mcard ${sel===id?"sel":""}" data-m="${id}" aria-pressed="${sel===id}">
+          ${mbox(sel===id?"happy":"idle", id)}<b>${x.name}</b><span><i class="dot" style="background:${x.pal.accent}"></i>${x.speciesPt}</span></button>`;}).join("")}</div>
+      <div class="foot">
+        <button class="btn" id="ok" ${sel?"":"disabled"}>${sel?`Escolher ${MASCOTS[sel].name}`:"Escolha um mascote"}</button>
+        ${mode==="change"?`<button class="btn ghost" id="cancel" style="margin-top:10px">Cancelar</button>`:""}
+      </div></div>`;
+    app.querySelectorAll("[data-m]").forEach(b=>b.onclick=()=>{ sel=b.dataset.m; sfx.tap(); draw(); });
+    document.getElementById("ok").onclick = ()=>{
+      if(!sel) return;
+      const changed = S.profile.mascot!==sel;
+      S.profile.mascot = sel; persist(); applyTheme(sel); sfx.win();
+      if (changed) confetti(40);
+      if (mode==="first"){ window.scrollTo(0,0); return langScreen("first"); }
+      tab = "me"; greet = true; render(); window.scrollTo(0,0);
+    };
+    const c = document.getElementById("cancel"); if (c) c.onclick = ()=>{ applyTheme(M()); tab="me"; render(); };
+  }
+  draw();
+}
+
+/* ================== telas principais ================== */
+let tab = "map", greet = true;
+function appbar(){
+  return `<div class="appbar"><div class="logo">Lógica<span>.</span><small>Raciocínio lógico</small></div>
+    ${MULTI?"":"<!--"}<button class="chip flag" id="lang" title="Idioma: ${CUR.name} · toque para trocar" aria-label="Idioma: ${CUR.name}">${CUR.flag}</button>${MULTI?"":"-->"}<span class="chip" title="Dias seguidos">🔥 ${streakNow()}</span><span class="chip" title="XP">⚡ ${S.xp}</span><span class="chip" title="Progresso geral">${overallPct()}%</span></div>`;
+}
+function nav(){
+  const b=(id,i,l)=>`<button class="${tab===id?"on":""}" data-tab="${id}">${i}${l}</button>`;
+  return `<div class="nav">${b("map",'<span class="i">🗺️</span>',"Aprender")}${b("prog",'<span class="i">📈</span>',"Progresso")}${b("ach",'<span class="i">🏆</span>',"Conquistas")}${b("me",`<span class="mi">${mascotSVG(M(),"idle",{accessories:S.profile.accessories})}</span>`,"Perfil")}</div>`;
+}
+function bindNav(){ app.querySelectorAll("[data-tab]").forEach(x=>x.onclick=()=>{ tab=x.dataset.tab; sfx.tap(); render(); window.scrollTo(0,0); });
+  const lb=document.getElementById("lang"); if(lb) lb.onclick=()=>{ sfx.tap(); langScreen("change"); }; }
+function render(){
+  if (!M()) return pickScreen("first");
+  applyTheme(M());
+  ({map:mapScreen, prog:progScreen, ach:achScreen, me:meScreen})[tab]();
+}
+
+function mapScreen(){
+  const nx = nextActivity();
+  const mood = greet ? "welcome" : "encourage";
+  const line = mascotLine(M(), mood); greet = false;
+  let next = "";
+  if (nx.type==="phase"){ const {b,i}=PHASES[nx.p.id];
+    next = `<button class="next" id="next"><span class="ic">${nx.p.emoji}</span><span><small>Próxima · ${esc(b.level)} · fase ${i+1}</small><b>${esc(nx.p.title)}</b><span class="g">🎯 ${esc(nx.p.goal)}</span></span></button>`;
+  } else if (nx.type==="review"){
+    next = `<button class="next" id="next"><span class="ic">🔁</span><span><small>Próxima atividade</small><b>Revisão</b><span class="g">Reforce ${myReview().length} item(ns) que você errou</span></span></button>`;
+  } else if (nx.type==="challenge"){
+    next = `<button class="next" id="next"><span class="ic">🎁</span><span><small>Próxima atividade · ${esc(nx.c.b.title)}</small><b>Desafio surpresa</b><span class="g">Vença e ganhe um item para o seu mascote</span></span></button>`;
+  }
+  const rc = myReview().length;
+  const blocks = MAIN.map((b,bi)=>{
+    const n=b.phases.filter(p=>done(p.id)).length, offs=[0,56,76,36,-30];
+    return `<div class="block"><div class="bhead"><span class="lvl">${b.level}</span><h2>${b.emoji} ${esc(b.title)}</h2><p>${esc(b.goal)}</p>
+        <div class="pbar"><i style="width:${n/b.phases.length*100}%"></i></div><div class="pcount">${n} de ${b.phases.length} fases${n===b.phases.length?" · tópico completo 🎉":""}</div></div>
+      <div class="path">${b.phases.map((p,i)=>{ const ul=unlocked(p.id), d=done(p.id), cur=nx.type==="phase"&&nx.p.id===p.id, off=offs[i%offs.length];
+        /* desafio que vem depois da fase anterior fica ao lado desta fase, do lado livre do caminho */
+        const side=off>0?"l":"r", last=i===b.phases.length-1;
+        const chs=CHAL.filter(c=>c.course===CUR.id).filter(c=>c.after===(i?b.phases[i-1].id:null) || (last && c.after===p.id)).map(c=>chalNode(c,side)).join("");
+        return `<div class="step">${chs}<button class="node ${d?"done":""} ${ul?"":"locked"} ${cur?"cur":""}" data-ph="${p.id}" style="transform:translateX(${offs[i%offs.length]}px)">
+          ${cur?`<span class="go">START</span>`:""}<span class="c">${ul?(d?"✓":p.emoji):"🔒"}</span><span class="st">${d?starsTxt(S.phases[p.id].stars):""}</span>
+          <span class="lb">${esc(p.title)}<small>Fase ${i+1} · ${esc(p.pt)}</small></span></button></div>`;}).join("")}</div></div>`;
+  }).join("");
+  const soon = CUR.upcoming.map((u,i)=>`<div class="soon"><span class="e">${u.emoji}</span><div><b>${u.level} · ${esc(u.title)}</b><span>${esc(u.pt)} · em breve</span></div></div>`).join("");
+  app.innerHTML = `<div class="screen">${appbar()}
+    <div class="hello">${mbox(mood, M(), 'id="mtap" title="Toque em mim"')}<div class="bubble left">${esc(line[0])}<small>${esc(line[1])}</small></div></div>
+    ${next}
+    ${rc && nx.type!=="review" ? `<button class="revbtn" id="rev"><span class="n">🔁</span><div><b>Revisão</b><span>${rc} item(ns) para reforçar · +8 XP cada</span></div></button>`:""}
+    ${blocks}${soon}
+    ${storageOK?"":`<p class="empty" style="margin:16px">⚠️ Este navegador não está salvando o progresso (modo anônimo?).</p>`}
+  </div>${nav()}`;
+  bindNav();
+  const nb=document.getElementById("next"); if(nb) nb.onclick=()=>{ sfx.tap(); goNext(nx); };
+  const rb=document.getElementById("rev"); if(rb) rb.onclick=()=>{ sfx.tap(); startReview(); };
+  document.getElementById("mtap").onclick=()=>{ const l=mascotLine(M(),"happy"); const h=document.querySelector(".hello");
+    h.innerHTML=`${mbox("happy",M(),'id="mtap"')}<div class="bubble left">${esc(l[0])}<small>${esc(l[1])}</small></div>`; sfx.ok();
+    setTimeout(()=>{ const t=document.getElementById("mtap"); if(t) t.onclick=()=>mapScreen(); },50); };
+  app.querySelectorAll("[data-ph]").forEach(b=>b.onclick=()=>{ const id=b.dataset.ph;
+    if(!unlocked(id)){ b.classList.add("shake"); sfx.no(); setTimeout(()=>b.classList.remove("shake"),400); toast("Conclua a fase anterior para desbloquear"); return; }
+    sfx.tap(); startPhase(id); });
+  app.querySelectorAll("[data-ch]").forEach(b=>b.onclick=()=>{ const c=CH_BY_ID[b.dataset.ch];
+    if(!chalOpen(c)){ b.classList.add("shake"); sfx.no(); setTimeout(()=>b.classList.remove("shake"),400); toast(`Conclua a fase “${PHASES[c.after].p.title}” para abrir este desafio`); return; }
+    sfx.tap(); startChallenge(c.id); });
+}
+function chalNode(c, side){
+  const op=chalOpen(c), won=chalWon(c), pr=PRIZES[c.prize];
+  return `<button class="node chal side-${side} ${won?"won":""} ${op?"":"locked"}" data-ch="${c.id}">
+    <span class="c">${won?pr.e:"🎁"}</span>
+    <span class="lb"><span class="extra">Extra</span>Desafio surpresa<small>${won?`Prêmio: ${esc(pr.name)}`:op?"Prêmio surpresa":`Depois de “${esc(PHASES[c.after].p.title)}”`}</small></span></button>`;
+}
+
+function progScreen(){
+  const dp=MAIN_PHASES.filter(p=>done(p.id)).length, db=MAIN.filter(b=>b.phases.every(p=>done(p.id))).length, pct=overallPct();
+  const last7=[...Array(7)].map((_,i)=>{ const d=new Date(Date.now()-(6-i)*864e5); return {k:dayStr(d), l:["D","S","T","Q","Q","S","S"][d.getDay()]}; });
+  const mx=Math.max(10,...last7.map(d=>S.days[d.k]||0));
+  const rev=myReview().map(id=>[id,S.review[id]]).sort((a,b)=>b[1].n-a[1].n);
+  const rows=MAIN_PHASES.filter(p=>S.phases[p.id]).map(p=>{ const r=S.phases[p.id];
+    return `<div class="row"><span>${p.emoji}</span><div class="grow"><b>${esc(p.title)}</b><small>${starsTxt(r.stars)} · jogada ${r.plays}x</small></div><span class="tag">${r.best}%</span></div>`;}).join("");
+  app.innerHTML = `<div class="screen">${appbar()}<div class="pad"><h1 class="h1">Seu progresso</h1>
+    <div class="grid">
+      <div class="card big"><div class="ring" style="background:conic-gradient(var(--accent) ${pct*3.6}deg, var(--tint) 0)"><i>${pct}%</i></div>
+        <div><b style="font-size:20px">Progresso geral</b><span style="text-transform:none;letter-spacing:0;font-size:14px;font-weight:700">${dp} de ${MAIN_PHASES.length} fases · ${db} de ${MAIN.length} tópico(s) concluído(s)</span></div></div>
+      <div class="card"><b>⚡ ${S.xp}</b><span>XP total</span></div>
+      <div class="card"><b>🔥 ${streakNow()}</b><span>Dias seguidos · recorde ${S.best||0}</span></div>
+      <div class="card"><b>🎯 ${accuracy()}%</b><span>Taxa de acertos</span></div>
+      <div class="card"><b>✍️ ${S.stats.answered}</b><span>Exercícios feitos</span></div>
+    </div>
+    <div class="stitle">XP nos últimos 7 dias</div>
+    <div class="card"><div class="chart">${last7.map(d=>{ const v=S.days[d.k]||0; return `<div>${v?`<em>${v}</em>`:""}<i style="height:${v/mx*80}%"></i><small>${d.l}</small></div>`;}).join("")}</div></div>
+    <div class="stitle">Precisa de revisão</div>
+    ${rev.length?`<div class="list">${rev.slice(0,6).map(([id,r])=>{ const q=QUESTIONS[id]; return q?`<div class="row"><span>🔁</span><div class="grow">${esc(q.prompt)}<small>${esc(q.from.title)} · errou ${r.n}x</small></div></div>`:""; }).join("")}</div>
+      <button class="btn" id="revgo" style="margin-top:12px">Revisar agora</button>`
+      :`<p class="empty">Nada pendente. Quando você errar uma pergunta, ela aparece aqui.</p>`}
+    <div class="stitle">Desempenho por fase</div>${rows?`<div class="list">${rows}</div>`:`<p class="empty">Conclua uma fase para ver seu desempenho.</p>`}
+    <div class="stitle">Histórico</div>
+    ${S.history.length?`<div class="list">${S.history.slice(-8).reverse().map(h=>`<div class="row"><div class="grow"><b>${h.lang&&COURSES[h.lang]?COURSES[h.lang].flag+" ":""}${esc(h.t)}</b><small>${h.d.split("-").reverse().join("/")} · ${h.c}/${h.n} certas</small></div><span class="tag">+${h.xp} XP</span></div>`).join("")}</div>`:`<p class="empty">Aparece aqui depois da primeira fase.</p>`}
+  </div></div>${nav()}`;
+  bindNav(); const r=document.getElementById("revgo"); if(r) r.onclick=()=>startReview();
+}
+
+function achScreen(){
+  const n=ACH.filter(a=>S.achieved[a.id]).length;
+  app.innerHTML = `<div class="screen">${appbar()}<div class="pad"><h1 class="h1">Conquistas <span style="font-size:18px;color:var(--muted)">${n}/${ACH.length}</span></h1>
+    <div class="ach">${ACH.map(a=>`<div class="${S.achieved[a.id]?"on":"off"}"><div class="e">${a.e}</div><b>${esc(a.t)}</b><span>${esc(a.d)}${S.achieved[a.id]?`<br>✔ ${S.achieved[a.id].split("-").reverse().join("/")}`:""}</span></div>`).join("")}</div>
+    <div class="stitle">Como ganhar XP</div>
+    <div class="list">
+      <div class="row"><div class="grow">Resposta certa</div><span class="tag">+10</span></div>
+      <div class="row"><div class="grow">Concluir uma fase pela primeira vez</div><span class="tag">+20</span></div>
+      <div class="row"><div class="grow">Fase sem erros</div><span class="tag">+10</span></div>
+      <div class="row"><div class="grow">Primeira sessão do dia (sequência)</div><span class="tag">+5 por dia, até +35</span></div>
+      <div class="row"><div class="grow">Acertar um item da revisão</div><span class="tag">+8</span></div>
+      <div class="row"><div class="grow">Concluir um tópico</div><span class="tag">+100</span></div>
+      <div class="row"><div class="grow">Vencer um desafio surpresa (1ª vez)</div><span class="tag">+${CHAL_BONUS}</span></div>
+      <div class="row"><div class="grow">Tentar de novo uma fase ou desafio (coragem de tentar)</div><span class="tag">+${TRY_BONUS}</span></div>
+    </div><p class="empty">Não existe bônus por velocidade: o que conta é entender.</p></div></div>${nav()}`;
+  bindNav();
+}
+
+/* app no celular (site): instalar na tela inicial */
+const SITE_URL = "https://mourafelipe.github.io/blurty/";
+const ON_SITE = /(^|\.)github\.io$/i.test(location.hostname) || location.hostname==="localhost";
+const IS_APP = (()=>{ try{ return matchMedia("(display-mode: standalone)").matches || navigator.standalone===true; }catch(e){ return false; } })();
+const IS_IOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+let installEvt = null;
+window.addEventListener("beforeinstallprompt", e=>{ e.preventDefault(); installEvt=e; const b=document.getElementById("appbox"); if(b){ b.innerHTML=appBox(); bindApp(); } });
+if (false && ON_SITE && "serviceWorker" in navigator) { try{ navigator.serviceWorker.register("sw.js").catch(()=>{}); }catch(e){} }
+function appBox(){
+  if (IS_APP) return `<h4>✔ Você está usando o app</h4><p>O Blurty abre direto da tela inicial, como um app.</p>`;
+  if (!ON_SITE) return `<h4>Instale pelo site</h4><p>Abra o Blurty pelo site no celular para colocar o ícone na tela inicial.</p><a class="btn ghost" href="${SITE_URL}" target="_blank" rel="noopener">Abrir o site</a>`;
+  if (installEvt) return `<h4>Coloque o Blurty na tela inicial</h4><p>Ele abre como um app, em tela cheia.</p><button class="btn" id="install">Instalar app</button>`;
+  if (IS_IOS) return `<h4>Coloque o Blurty na tela inicial</h4><p>No Safari, toque em <b>Compartilhar</b> e depois em <b>Adicionar à Tela de Início</b>.</p>`;
+  return `<h4>Coloque o Blurty na tela inicial</h4><p>No Chrome, abra o menu <b>⋮</b> e toque em <b>Instalar app</b> ou <b>Adicionar à tela inicial</b>.</p>`;
+}
+function bindApp(){ const b=document.getElementById("install"); if(b) b.onclick=async()=>{ if(!installEvt) return; installEvt.prompt(); try{ await installEvt.userChoice; }catch(e){} installEvt=null; const x=document.getElementById("appbox"); if(x){ x.innerHTML=appBox(); bindApp(); } }; }
+function meScreen(){
+  const line=mascotLine(M(),"encourage"), ph=MAIN_PHASES.filter(p=>done(p.id)).length;
+  app.innerHTML = `<div class="screen">${appbar()}<div class="pad"><h1 class="h1">Perfil</h1>
+    <div class="card" style="text-align:center;padding:18px">
+      <div style="width:72px;height:72px;margin:0 auto 8px">${mascotSVG()}</div>
+      <div class="disp" style="font-size:28px;font-weight:800;line-height:1">Raciocínio Lógico</div>
+      <div style="color:var(--muted);font-weight:800">Para concursos · ${MAIN.length} tópicos prontos · ${CUR.upcoming.length} em breve</div>
+      <div class="bubble" style="display:inline-block;margin-top:12px">${esc(line[0])}<small>${esc(line[1])}</small></div>
+    </div>
+    <div class="stitle">Seus números</div>
+    <div class="grid"><div class="card"><b>⚡ ${S.xp}</b><span>XP</span></div><div class="card"><b>🏆 ${ACH.filter(a=>S.achieved[a.id]).length}</b><span>Conquistas</span></div>
+      <div class="card"><b>✔ ${ph}</b><span>Fases concluídas</span></div><div class="card"><b>🎯 ${accuracy()}%</b><span>Acertos</span></div></div>
+    <div class="stitle">Como usar</div>
+    <div class="infobox"><h4>Fases curtas, estilo prova</h4>
+      <p>Cada fase tem um resumo e 3 questões, algumas no estilo <b>Certo ou Errado</b>. O que você errar vai para a Revisão.</p></div>
+    <p class="empty" style="margin-top:14px">Seu progresso fica salvo neste aparelho e neste navegador.</p>
+  </div></div>${nav()}`;
+  bindNav();
+}
+
+/* ================== escolha de idioma ================== */
+function langScreen(mode){ // mode: "first" | "change"
+  const card=co=>{ const ph=co.blocks.flatMap(b=>b.phases), d=ph.filter(p=>done(p.id)).length, has=S.langs.includes(co.id) && mode!=="first", on=co.id===CUR.id && mode!=="first";
+    return `<button class="lang ${on?"on":""}" data-lang="${co.id}"><span class="fl">${co.flag}</span><span class="grow"><b>${co.name}</b><small>${esc(co.native)} · ${co.blocks.length} bloco${co.blocks.length>1?"s":""} · ${ph.length} fases</small>
+      ${has?`<small>✔ ${d} de ${ph.length} fases · ⚡ ${S.xpBy[co.id]||0} XP</small>`:""}</span><span class="tag">${on?"Estudando":has?"Continuar":"Começar"}</span></button>`; };
+  app.innerHTML=`<div class="screen pick"><div>
+      <h1 class="h1">${mode==="first"?"O que você quer aprender?":"Seus idiomas"}</h1>
+      <p class="sub">${mode==="first"?"Dá para estudar mais de um idioma. O XP de todos soma no seu total.":"Troque quando quiser: o progresso de cada idioma fica salvo, e o XP de todos soma no total."}</p>
+      <div class="langs">${Object.values(COURSES).map(card).join("")}
+        ${SOON_COURSES.map(x=>`<div class="lang off"><span class="fl">${x.flag}</span><span class="grow"><b>${x.name}</b><small>${esc(x.native)} · em breve</small></span></div>`).join("")}</div>
+      ${mode==="change"?`<div class="foot"><button class="btn ghost" id="cancel">Voltar</button></div>`:""}
+    </div></div>`;
+  app.querySelectorAll("[data-lang]").forEach(b=>b.onclick=()=>{ const id=b.dataset.lang, isNew=!S.langs.includes(id);
+    if (mode==="first") S.langs=[id]; else if (isNew) S.langs.push(id);
+    S.course=id; setCourse(id); persist(); sfx.win();
+    if (mode!=="first") toast(`${CUR.flag} Agora você está estudando ${LNAME()}`);
+    tab="map"; greet=true; render(); window.scrollTo(0,0); });
+  const c=document.getElementById("cancel"); if(c) c.onclick=()=>{ sfx.tap(); render(); };
+  window.scrollTo(0,0);
+}
+
+/* ================== sessão ================== */
+let L;
+function startPhase(id){ const {p,b}=PHASES[id];
+  L={mode:"phase", p, b, queue:p.questions.map((q,k)=>QUESTIONS[p.id+":"+k]), total:p.questions.length, n:0, mistakes:0, ok:0, xp:0}; learnCard(); }
+function startReview(){
+  const ids=shuffle(myReview()).slice(0,5);
+  if(!ids.length){ toast("Nada para revisar agora 🎉"); return; }
+  L={mode:"review", queue:ids.map(id=>QUESTIONS[id]), total:ids.length, n:0, mistakes:0, ok:0, xp:0, cleared:0}; nextQ();
+}
+function startChallenge(id){ const c=CH_BY_ID[id];
+  const queue=shuffle(c.questions.map((q,k)=>QUESTIONS[c.id+":s"+k]));      // tudo novo: exercícios da expressão secreta
+  const missed=shuffle(myReview().filter(id=>!id.startsWith(c.id+":")));
+  const mine=missed.find(id=>QUESTIONS[id].from && PHASES[QUESTIONS[id].qid.split(":")[0]] && PHASES[QUESTIONS[id].qid.split(":")[0]].b===c.b) || missed[0];
+  if (mine) queue.push({...QUESTIONS[mine], kind:"Revanche · "+(QUESTIONS[mine].kind||"Exercício")});   // algo que a pessoa já errou
+  L={mode:"challenge", c, queue, total:queue.length, need:queue.length-1, revenge:!!mine, n:0, mistakes:0, ok:0, xp:0}; chalIntro(); }
+function chalIntro(){
+  const c=L.c, won=chalWon(c), pr=PRIZES[c.prize], l=mascotLine(M(),"surprise");
+  app.innerHTML=`<div class="screen"><div class="end">${mbox("surprised")}
+      <h2>Desafio surpresa!</h2><div class="sub">${c.b.emoji} ${esc(c.b.title)}</div>
+      <div class="bubble">${esc(l[0])}<small>${esc(l[1])}</small></div>
+      <div class="done-goal"><small>🎯 Como vencer</small>Aprenda uma expressão secreta e acerte ${L.need} de ${L.total}: ${c.questions.length} exercícios novos${L.revenge?" e 1 revanche de algo que você já errou":""}.</div>
+      <div class="done-goal"><small>🎁 Prêmio</small>${won?`Você já ganhou: ${pr.e} ${esc(pr.name)}. Jogue de novo para treinar e ganhar XP.`:`Um item surpresa para o seu mascote e +${CHAL_BONUS} XP.`}</div>
+    </div><div class="foot"><button class="btn" id="go" style="margin-bottom:10px">Abrir o desafio</button><button class="btn ghost" id="map">Agora não</button></div></div>`;
+  sfx.tap();
+  document.getElementById("go").onclick=()=>{ sfx.tap(); chalCard(); };
+  document.getElementById("map").onclick=quit; window.scrollTo(0,0);
+}
+function chalCard(){
+  const c=L.c;
+  app.innerHTML = `<div class="screen">${topBar()}<div class="page">
+      <div class="kicker">Desafio surpresa · Expressão secreta</div>
+      <h2>🤫 ${esc(c.title)}</h2><div class="ptitle">${esc(c.pt)}</div>
+      ${readingHTML(c.reading)}</div>
+    <div class="foot"><button class="btn" id="go">Começar · ${L.total} exercícios</button></div></div>`;
+  document.getElementById("quit").onclick=quit;
+  document.getElementById("go").onclick=()=>{ sfx.tap(); nextQ(); };
+  window.scrollTo(0,0);
+}
+function topBar(){ return `<div class="top"><button class="x" id="quit" aria-label="Sair">✕</button><div class="bar"><i style="width:${L.n/L.total*100}%"></i></div><div class="qcount">${Math.min(L.n+1,L.total)}/${L.total}</div></div>`; }
+function quit(){ tab="map"; render(); window.scrollTo(0,0); }
+
+function readingHTML(blocks){
+  return blocks.map(x=>{
+    if (x.say){ const who=x.say[0]==="@"?M():null;
+      return `<div class="say">${who?mbox("welcome",who):`<div class="av">${esc(x.say[0][0])}</div>`}<div class="bubble left">${esc(x.say[1])} <button class="spk" data-say="${esc(x.say[1])}" aria-label="Ouvir" style="width:26px;height:26px;font-size:12px;vertical-align:middle">🔊</button>${x.pt?`<small>${esc(x.pt)}</small>`:""}</div></div>`; }
+    if (x.dialog) return dialogHTML(x.dialog);
+    if (x.p)   return `<p>${x.p}</p>`;
+    if (x.tip) return `<div class="tip">${x.tip}</div>`;
+    if (x.ex)  return `<div class="ex"><button class="spk" data-say="${esc(x.ex)}" aria-label="Ouvir">🔊</button><div><span class="en">${esc(x.ex)}</span>${x.pt?`<span class="pt">${esc(x.pt)}</span>`:""}</div></div>`;
+    return "";
+  }).join("");
+}
+function learnCard(){
+  const {p,b}=L, i=PHASES[p.id].i;
+  app.innerHTML = `<div class="screen">${topBar()}<div class="page">
+      <div class="kicker">${esc(b.title)} · Fase ${i+1} de ${b.phases.length}</div>
+      <h2>${p.emoji} ${esc(p.title)}</h2><div class="ptitle">${esc(p.pt)}</div>
+      <div class="goal"><span>🎯</span><span><small>Objetivo desta fase</small>${esc(p.goal)}</span></div>
+      ${readingHTML(p.reading)}</div>
+    <div class="foot"><button class="btn" id="go">Praticar · ${p.questions.length} exercícios</button></div></div>`;
+  document.getElementById("quit").onclick=quit;
+  document.getElementById("go").onclick=()=>{ sfx.tap(); nextQ(); };
+  window.scrollTo(0,0);
+}
+
+function nextQ(){
+  if (!L.queue.length) return L.mode==="review"?finishReview():L.mode==="challenge"?finishChallenge():finishPhase();
+  const q=L.cur=L.queue.shift();
+  app.innerHTML = `<div class="screen">${topBar()}<div class="q"><div class="qhead">
+      <div class="type">${L.mode==="review"?"Revisão · ":L.mode==="challenge"?"Desafio · ":""}${esc(q.kind||{choice:"Escolha",build:"Monte a frase",match:"Associe"}[q.type])}</div><div class="qm">${mascotSVG(M(),"thinking")}</div></div>
+      ${q.situation?`<div class="sit"><span>📍</span><span>${esc(q.situation)}</span></div>`:""}
+      ${q.dialog?dialogHTML(q.dialog):""}
+      <h3>${esc(q.prompt)}</h3><div id="body"></div></div>
+    <div class="foot" id="foot"><div class="fb" id="fb"></div><button class="btn" id="check" disabled>Verificar</button></div></div>`;
+  document.getElementById("quit").onclick=quit;
+  ({choice:qChoice, build:qBuild, match:qMatch})[q.type](q);
+  window.scrollTo(0,0);
+}
+function qChoice(q){
+  const body=document.getElementById("body"), btn=document.getElementById("check");
+  body.innerHTML=(q.sentence?`<div class="sent"><button class="spk" data-say="${esc(q.sentence.replace("___","…"))}">🔊</button><span>${esc(q.sentence)}</span></div>`:"")
+    +`<div class="opts">${shuffle(q.options.map((o,i)=>i)).map(i=>`<button class="opt" data-i="${i}">${esc(q.options[i])}</button>`).join("")}</div>`;
+  let sel=null; const opts=[...body.querySelectorAll(".opt")];
+  opts.forEach(b=>b.onclick=()=>{ opts.forEach(x=>x.classList.remove("sel")); b.classList.add("sel"); sel=+b.dataset.i; btn.disabled=false; sfx.tap(); });
+  btn.onclick=()=>{ const ok=sel===q.answer; opts.forEach(x=>{ x.disabled=true; if(+x.dataset.i===q.answer) x.classList.add("good"); if(!ok&&+x.dataset.i===sel) x.classList.add("bad"); }); result(ok,q.options[q.answer]); };
+}
+function qBuild(q){
+  const body=document.getElementById("body"), btn=document.getElementById("check");
+  body.innerHTML=`<div class="slot" id="slot"></div><div class="bank">${shuffle(q.words).map(w=>`<button class="w">${esc(w)}</button>`).join("")}</div>`;
+  const slot=body.querySelector("#slot"), picked=[];
+  body.querySelectorAll(".bank .w").forEach(b=>b.onclick=()=>{
+    if(b.classList.contains("used")||btn.dataset.locked) return; b.classList.add("used"); sfx.tap();
+    const c=document.createElement("button"); c.className="w"; c.textContent=b.textContent; slot.appendChild(c); picked.push({c,b});
+    c.onclick=()=>{ if(btn.dataset.locked) return; c.remove(); b.classList.remove("used"); picked.splice(picked.findIndex(p=>p.c===c),1); btn.disabled=!picked.length; };
+    btn.disabled=false; });
+  btn.onclick=()=>{ btn.dataset.locked=1; result(norm(picked.map(p=>p.b.textContent).join(" "))===norm(q.answer), q.answer); };
+}
+function qMatch(q){
+  const body=document.getElementById("body"), btn=document.getElementById("check");
+  const left=shuffle(q.pairs.map((p,i)=>({t:p[0],i}))), right=shuffle(q.pairs.map((p,i)=>({t:p[1],i})));
+  body.innerHTML=`<div class="pairs">${left.map((l,r)=>`<button class="opt" data-side="L" data-i="${l.i}">${esc(l.t)}</button><button class="opt" data-side="R" data-i="${right[r].i}">${esc(right[r].t)}</button>`).join("")}</div>`;
+  btn.style.display="none"; let pick=null, matched=0, errs=0;
+  body.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
+    if(b.classList.contains("done")) return;
+    if(b.dataset.side==="L") speak(b.textContent);
+    if(!pick||pick.dataset.side===b.dataset.side){ if(pick) pick.classList.remove("sel"); pick=b; b.classList.add("sel"); sfx.tap(); return; }
+    if(pick.dataset.i===b.dataset.i){ [pick,b].forEach(x=>{x.classList.remove("sel"); x.classList.add("done"); x.disabled=true;}); sfx.ok(); matched++;
+      if(matched===q.pairs.length){ btn.style.display=""; result(errs===0,null); } }
+    else { errs++; sfx.no(); const a=pick; [a,b].forEach(x=>{x.classList.remove("sel"); x.classList.add("bad","shake");}); setTimeout(()=>[a,b].forEach(x=>x.classList.remove("bad","shake")),450); }
+    pick=null; });
+}
+
+/* cada exercício é respondido uma vez; erro vai para a Revisão (sem repetir na hora) */
+function result(ok, correctText){
+  const foot=document.getElementById("foot"), fb=document.getElementById("fb"), btn=document.getElementById("check"), q=L.cur;
+  L.n++; S.stats.answered++;
+  if (ok){
+    S.stats.correct++; L.ok++;
+    let gain=10;
+    if (L.mode==="review"){ gain=8; S.stats.cleared++; L.cleared++; }
+    delete S.review[q.qid];
+    L.xp+=gain; L.row=(L.row||0)+1; foot.className="foot ok"; sfx.ok();
+    const wow=L.row===3, l=mascotLine(M(),"happy");
+    fb.innerHTML=`${mbox(wow?"surprised":"happy")}<div><span class="h">${wow?"3 seguidas! ":""}${esc(l[0])} +${gain} XP</span><span class="pt">${esc(l[1])}</span><p>${q.explain}</p></div>`;
+  } else {
+    L.mistakes++; L.row=0; S.review[q.qid]={n:((S.review[q.qid]||{}).n||0)+1, d:dayStr()};
+    foot.className="foot no"; sfx.no();
+    const l=mascotLine(M(),"sad");
+    fb.innerHTML=`${mbox("encourage")}<div><span class="h">${esc(l[0])}</span><span class="pt">${esc(l[1])}</span>${correctText?`<p>Resposta certa: <b>${esc(correctText)}</b></p>`:""}<p>${q.explain}</p><p style="font-size:13px;color:var(--muted)">Errar faz parte: ela vai para a Revisão para você treinar.</p></div>`;
+  }
+  persist();
+  document.querySelector(".bar i").style.width=(L.n/L.total*100)+"%";
+  const pep = S.stats.answered % PEP_EVERY === 0;
+  btn.disabled=false; btn.textContent="Continuar";
+  btn.onclick=()=>{ sfx.tap(); pep ? pepTalk() : nextQ(); };
+}
+
+function pepTalk(){
+  if ((S.stats.answered/PEP_EVERY)%2===0) return tipTalk();   // alterna: incentivo, dica, incentivo, dica…
+  const l=mascotLine(M(),"encourage");
+  app.innerHTML=`<div class="screen pep">${mbox("encourage")}
+    <div class="bubble">${esc(l[0])}<small>${esc(l[1])}</small></div>
+    <div class="meta">✍️ ${S.stats.answered} exercícios feitos · 🎯 ${accuracy()}% de acertos</div>
+    <div class="foot"><button class="btn" id="go">Continuar</button></div></div>`;
+  sfx.win(); document.getElementById("go").onclick=()=>{ sfx.tap(); nextQ(); };
+}
+
+function tipTalk(){
+  const T=CUR.tips, n=S.tipBy[CUR.id]||0, tp=T[n%T.length]; S.tipBy[CUR.id]=n+1; persist();
+  app.innerHTML=`<div class="screen pep">${mbox("happy")}
+    <div class="kicker" style="margin-top:6px">💡 Dica de estudo</div>
+    <div class="bubble tip"><span class="te">${tp.e}</span>${esc(tp.t)}<small>${esc(tp.d)}</small></div>
+    <div class="meta">✍️ ${S.stats.answered} exercícios feitos · 🎯 ${accuracy()}% de acertos</div>
+    <div class="foot"><button class="btn" id="go">Continuar</button></div></div>`;
+  sfx.ok(); document.getElementById("go").onclick=()=>{ sfx.tap(); nextQ(); };
+}
+
+function addXP(n){ S.xp+=n; S.xpBy[CUR.id]=(S.xpBy[CUR.id]||0)+n; const t=dayStr(); S.days[t]=(S.days[t]||0)+n; }
+const xpByTxt = ()=>S.langs.map(l=>`${COURSES[l].flag} ${S.xpBy[l]||0}`).join(" · ");
+
+function finishPhase(){
+  if (L.ok < Math.ceil(L.total*PASS)) return retryPhase();
+  const {p,b}=L, first=!done(p.id);
+  const stars=L.mistakes===0?3:L.mistakes===1?2:1, acc=Math.round(L.ok/L.total*100);
+  const lines=[["Respostas certas",L.xp]];
+  if (first) lines.push(["Fase concluída",20]);
+  if (!L.mistakes) lines.push(["Sem erros",10]);
+  if (touchDay()) lines.push([`Sequência de ${S.streak} dia${S.streak>1?"s":""}`,5*Math.min(S.streak,7)]);
+  const prev=S.phases[p.id]||{stars:0,best:0,plays:0};
+  S.phases[p.id]={stars:Math.max(prev.stars,stars), best:Math.max(prev.best,acc), plays:prev.plays+1};
+  const blockNow = first && b.phases.every(x=>done(x.id));
+  if (blockNow) lines.push(["Tópico completo!",100]);
+  const total=lines.reduce((s,l)=>s+l[1],0); addXP(total);
+  S.history.push({d:dayStr(), t:p.title, c:L.ok, n:L.total, xp:total, lang:CUR.id}); S.history=S.history.slice(-40);
+  const news=checkAch(); persist();
+  const nd=b.phases.filter(x=>done(x.id)).length, nx=nextActivity();
+  const mood=blockNow?"celebrate":"excited", l=mascotLine(M(),mood);
+  app.innerHTML=`<div class="screen"><div class="end">
+      ${mbox(mood)}
+      <h2>${blockNow?"Tópico completo!":"Fase concluída!"}</h2><div class="sub">${esc(p.title)} · ${esc(p.pt)}</div>
+      <div class="bubble">${esc(l[0])}<small>${esc(l[1])}</small></div>
+      <div class="st">${starsTxt(stars)}</div>
+      <div class="cards3"><div class="card"><b>⚡ ${total}</b><span>XP</span></div><div class="card"><b>🎯 ${acc}%</b><span>Acertos</span></div><div class="card"><b>🔥 ${S.streak}</b><span>Dias</span></div></div>
+      <div class="done-goal"><small>✔ Objetivo cumprido</small>${esc(p.goal)}</div>
+      <div class="xpl">${lines.map(x=>`<div><span>${esc(x[0])}</span><b>+${x[1]} XP</b></div>`).join("")}</div>
+      <div class="bprog"><div class="t">${b.emoji} ${esc(b.title)} · ${nd} de ${b.phases.length} fases</div>
+        <div class="steps">${b.phases.map(x=>`<i class="${done(x.id)?"on":""}"></i>`).join("")}</div>
+        <div class="n">${nd===b.phases.length?esc(b.doneMsg||"Tópico completo!"):`Falta${b.phases.length-nd>1?"m":""} ${b.phases.length-nd} fase${b.phases.length-nd>1?"s":""} para completar o tópico.`}</div></div>
+      ${news.map(a=>`<div class="newach"><b>${a.e} Conquista: ${esc(a.t)}</b>${esc(a.d)}</div>`).join("")}
+      ${L.mistakes?`<p class="empty" style="margin-top:12px">O que você errou foi para a <b>Revisão</b>.${stars<3?" Refaça a fase sem erros para ganhar 3 estrelas.":""}</p>`:""}
+    </div><div class="foot">
+      ${nx.type!=="all"?`<button class="btn" id="nx" style="margin-bottom:10px">${nx.type==="phase"?`Próxima: ${esc(nx.p.title)}`:nx.type==="challenge"?"Próxima: Desafio surpresa":"Próxima: Revisão"}</button>`:""}
+      <button class="btn ghost" id="map">Ver mapa</button></div></div>`;
+  sfx.win(); confetti(blockNow?130:60);
+  const nb=document.getElementById("nx"); if(nb) nb.onclick=()=>goNext(nx);
+  document.getElementById("map").onclick=quit; window.scrollTo(0,0);
+}
+function retryPhase(){
+  const {p}=L, need=Math.ceil(L.total*PASS), acc=Math.round(L.ok/L.total*100);
+  const bonus=touchDay()?5*Math.min(S.streak,7):0, total=L.xp+bonus+TRY_BONUS; addXP(total);
+  const prev=S.phases[p.id]||{stars:0,best:0,plays:0};
+  S.phases[p.id]={stars:prev.stars, best:Math.max(prev.best,acc), plays:prev.plays+1};
+  S.history.push({d:dayStr(), t:p.title, c:L.ok, n:L.total, xp:total, lang:CUR.id}); S.history=S.history.slice(-40);
+  checkAch(); persist();
+  const l=mascotLine(M(),"oops");
+  app.innerHTML=`<div class="screen"><div class="end">${mbox("encourage")}
+      <h2>Você se jogou! 💪</h2><div class="sub">${esc(p.title)} · ${esc(p.pt)}</div>
+      <div class="bubble">${esc(l[0])}<small>${esc(l[1])}</small></div>
+      <div class="cards3" style="margin-top:14px"><div class="card"><b>✔ ${L.ok}/${L.total}</b><span>Acertos</span></div><div class="card"><b>🎯 ${need}</b><span>Para concluir</span></div><div class="card"><b>⚡ ${total}</b><span>XP ganho</span></div></div>
+      <div class="xpl"><div><span>Coragem de tentar</span><b>+${TRY_BONUS} XP</b></div></div>
+      <div class="done-goal"><small>🎯 Objetivo da fase</small>${esc(p.goal)}</div>
+      <p class="empty" style="margin-top:12px">Errar aqui é melhor do que errar na prova. Com ${need} acertos de ${L.total}, a fase é sua. O que você errou virou Revisão para treinar.</p>
+    </div><div class="foot"><button class="btn" id="again" style="margin-bottom:10px">Jogar de novo</button><button class="btn ghost" id="map">Ver mapa</button></div></div>`;
+  sfx.tap();
+  document.getElementById("again").onclick=()=>startPhase(p.id);
+  document.getElementById("map").onclick=quit; window.scrollTo(0,0);
+}
+
+function finishChallenge(){
+  const c=L.c, pr=PRIZES[c.prize], win=L.ok>=L.need, first=win && !chalWon(c);
+  const lines=[["Respostas certas",L.xp]];
+  if (first) lines.push(["Desafio vencido",CHAL_BONUS]);
+  if (!win) lines.push(["Coragem de tentar",TRY_BONUS]);
+  if (touchDay()) lines.push([`Sequência de ${S.streak} dia${S.streak>1?"s":""}`,5*Math.min(S.streak,7)]);
+  const total=lines.reduce((s,l)=>s+l[1],0); addXP(total);
+  const prev=S.challenges[c.id]||{plays:0};
+  S.challenges[c.id]={won:prev.won||(win?dayStr():null), plays:(prev.plays||0)+1};
+  if (first && !S.items.includes(c.prize)) S.items.push(c.prize);
+  S.history.push({d:dayStr(), t:"Desafio: "+c.title, c:L.ok, n:L.total, xp:total, lang:CUR.id}); S.history=S.history.slice(-40);
+  const news=checkAch(); persist();
+  const xpl=`<div class="xpl">${lines.map(x=>`<div><span>${esc(x[0])}</span><b>+${x[1]} XP</b></div>`).join("")}</div>`;
+  if (!win){
+    const l=mascotLine(M(),"oops");
+    app.innerHTML=`<div class="screen"><div class="end">${mbox("encourage")}
+        <h2>Você se jogou! 💪</h2><div class="sub">Desafio surpresa · ${esc(c.title)}</div>
+        <div class="bubble">${esc(l[0])}<small>${esc(l[1])}</small></div>
+        <div class="cards3" style="margin-top:14px"><div class="card"><b>✔ ${L.ok}/${L.total}</b><span>Acertos</span></div><div class="card"><b>🎯 ${L.need}</b><span>Para abrir</span></div><div class="card"><b>⚡ ${total}</b><span>XP ganho</span></div></div>
+        ${xpl}
+        <p class="empty" style="margin-top:12px">Você já aprendeu a expressão secreta, e ela é sua. O presente continua te esperando: cada tentativa traz exercícios novos.</p>
+      </div><div class="foot"><button class="btn" id="again" style="margin-bottom:10px">Jogar de novo</button><button class="btn ghost" id="map">Ver mapa</button></div></div>`;
+    sfx.tap();
+    document.getElementById("again").onclick=()=>startChallenge(c.id);
+    document.getElementById("map").onclick=quit; window.scrollTo(0,0); return;
+  }
+  const using=S.profile.accessories.includes(c.prize), l=mascotLine(M(),"gift");
+  app.innerHTML=`<div class="screen"><div class="end">
+      <div class="mbox">${mascotSVG(M(),"excited",{accessories:withItem(c.prize)})}</div>
+      <h2>${first?"Presente aberto!":"Desafio vencido!"}</h2><div class="sub">Desafio surpresa · ${esc(c.title)}</div>
+      <div class="bubble">${esc(l[0])}<small>${esc(l[1])}</small></div>
+      <div class="prize"><span class="pe">${pr.e}</span><div><small>${first?"Novo item para o seu mascote":"Item já conquistado"}</small><b>${esc(pr.name)}</b></div></div>
+      ${xpl}
+      ${news.map(a=>`<div class="newach"><b>${a.e} Conquista: ${esc(a.t)}</b>${esc(a.d)}</div>`).join("")}
+      ${L.mistakes?`<p class="empty" style="margin-top:12px">O que você errou foi para a <b>Revisão</b>.</p>`:""}
+    </div><div class="foot">
+      ${using?"":`<button class="btn" id="use" style="margin-bottom:10px">Usar agora</button>`}
+      <button class="btn ${using?"":"ghost"}" id="map">Ver mapa</button></div></div>`;
+  sfx.win(); confetti(first?110:60);
+  const u=document.getElementById("use"); if(u) u.onclick=()=>{ equip(c.prize); sfx.ok(); toast(`${pr.e} Seu mascote está usando: ${pr.name}`); quit(); };
+  document.getElementById("map").onclick=quit; window.scrollTo(0,0);
+}
+function finishReview(){
+  const bonus=touchDay()?5*Math.min(S.streak,7):0, total=L.xp+bonus; addXP(total);
+  S.history.push({d:dayStr(), t:"Revisão", c:L.ok, n:L.total, xp:total, lang:CUR.id}); S.history=S.history.slice(-40);
+  const news=checkAch(); persist();
+  const left=myReview().length, l=mascotLine(M(),"excited");
+  app.innerHTML=`<div class="screen"><div class="end">${mbox("excited")}
+      <h2>Revisão feita!</h2><div class="sub">Você reforçou ${L.cleared} de ${L.total} item(ns)</div>
+      <div class="bubble">${esc(l[0])}<small>${esc(l[1])}</small></div>
+      <div class="cards3" style="margin-top:14px"><div class="card"><b>⚡ ${total}</b><span>XP</span></div><div class="card"><b>🎯 ${Math.round(L.ok/L.total*100)}%</b><span>Acertos</span></div><div class="card"><b>📌 ${left}</b><span>Restam</span></div></div>
+      ${bonus?`<div class="xpl"><div><span>Sequência de ${S.streak} dia(s)</span><b>+${bonus} XP</b></div></div>`:""}
+      ${news.map(a=>`<div class="newach"><b>${a.e} Conquista: ${esc(a.t)}</b>${esc(a.d)}</div>`).join("")}
+    </div><div class="foot"><button class="btn" id="map">Voltar ao mapa</button></div></div>`;
+  sfx.win(); confetti(); document.getElementById("map").onclick=quit;
+}
+
+render();
+</script>
+</body>
+</html>
